@@ -1,4 +1,4 @@
-# airspyhf_channelize
+# airspy_channelize
 This code allows incoming SDR data to be channelized and provided to other processes via UDP. 
 
 The initial goal of this development was to enable complex IQ data streaming from an Airspy SDR to be brought into Matlab for processing. The resulting code should work though for any process that needs to receive channelized data streams. This software sits between the incoming high sample rate data and processes running on a machine that might want access to one or more channels at a lower sample rate. This code was developed in Matlab and converted to C using Matlab Coder. Some of the Matlab functions developed here has some interesting methods necessitated by the restrictions on system objects in Matlab when using Matlab Coder. 
