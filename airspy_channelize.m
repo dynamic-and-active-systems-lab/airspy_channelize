@@ -156,12 +156,11 @@ end
 %      airspychannelize24(rawSampleRate);
 % elseif decimationFactor == 32
 %      airspychannelize32(rawSampleRate);    
-if decimationFactor == 48
-    %airspychannelize48_tunable_sender(rawSampleRate);
-    airspychannelize48(rawSampleRate);
-else
-    fprintf('Only decimation factors of 48 are currently supported. Exiting.')
-end
+% if decimationFactor == 48
+%     airspychannelize48(rawSampleRate);
+% else
+%     fprintf('Only decimation factors of 48 are currently supported. Exiting.')
+% end
 
 % if decimationFactor == 2
 %     airspychannelize2(rawSampleRate);
@@ -185,17 +184,19 @@ end
 %     airspychannelize80(rawSampleRate);
 % elseif decimationFactor == 96
 %     airspychannelize96(rawSampleRate);
-% elseif decimationFactor == 100
-%     airspychannelize100(rawSampleRate);
+if decimationFactor == 100
+     airspychannelize100(rawSampleRate);
 % elseif decimationFactor == 120
 %     airspychannelize120(rawSampleRate);
 % elseif decimationFactor == 128
 %     airspychannelize128(rawSampleRate);
 % elseif decimationFactor == 192
 %     airspychannelize192(rawSampleRate);
+elseif decimationFactor == 200
+    airspychannelize200(rawSampleRate);
 % elseif decimationFactor == 256
 %     airspychannelize256(rawSampleRate);
-% end
+end
 
 
 end
