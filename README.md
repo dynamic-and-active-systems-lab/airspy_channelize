@@ -32,7 +32,7 @@ When testing `airspy_channelize_codegen_script_exe.m` for executable generation 
     - Find the `libdl.so`  library symbolic link on your machine. For a typical install it should be in `/usr/lib/x86_64-linux-gnu`. Copy the symbolic link to the unzipped directory. 
     - Find the `libiomp5.so` library in your Matlab root directory. For a typical install of Matlab R2022b it should be in `/<MATLAB_ROOT>/sys/os/glnxa64`. Copy `libiomp5.so` to the unzipped directory. 
 6. Open a terminal in the directory of the unzipped files and run `$ export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:<PATH TO THE UNZIPPED FILES>"`.
-7. In this terminal, run `gcc main.c *.a *.so -o airspy_channelize`
+7. In this terminal, run `gcc main.c *.a *.so -o airspy_channelize -lm`
 8. The executable should be generated. To run this on a linux machine `./` needs to precede the `airspy_channelize` commands listed below in Basic Operation. ie. `./airspy_channelize 192000 48`. IMPORTANT: On subsequent calls of the program or in other terminal windows, you'll need to re-run `$ export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:<PATH TO THE UNZIPPED FILES>"` prior to calling airspy_channelizer. 
 
 **Note:** Due to code generation restrictions within Matlab, each decimation factor for the channelizer required its own function. As such, the `airspy_channelize_codegen_script.m` may may take a long time to complete (up to a few hours). If you only need a subset of the decimation factor provided in this repo, it is highly recommended to modify the `airspy_channelize.m` function to limit the number of decimation/channel options so that the function compiles faster. 
