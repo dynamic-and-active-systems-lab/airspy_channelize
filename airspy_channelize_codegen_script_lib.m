@@ -48,7 +48,9 @@ systemcopycommand = ['cp ',matlabroot,'/sys/os/glnxa64/libiomp5.so ~/Desktop/por
 [cp2status,cp2cmdout] = system(systemcopycommand);
 [exprtstatus, exprtcmdout] = system('export LD_LIBRARY_PATH=~/Desktop/portairspy_channelize');
 disp('Library transfers complete')
-[cmplstatus, cmplcmdout] = system('gcc main.c *.a *.so -o airspy_channelize');
+%Added -lm to deal with underfined reference to 'sin' error. Found solution
+%at https://stackoverflow.com/questions/5005363/undefined-reference-to-sin
+[cmplstatus, cmplcmdout] = system('gcc main.c *.a *.so -o airspy_channelize -lm');
 if cmplstatus==0
     disp('Process complete. Executable generated.')
 else
