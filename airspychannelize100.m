@@ -225,8 +225,8 @@ while 1
                 frameIndex = frameIndex+1;
 
                 if dataBufferFIFO.NumUnreadSamples>=samplesAtFlush
+                    writeTimeHold = writeTime;
                     writeTime = 0;
-
                     fprintf('Channelizer: Running - Buffer filled with %u samples. Flushing to channels. Currently receiving: %i samples per packet.\n',uint32(samplesAtFlush),int32(expectedFrameSize))
                     %fprintf('Actual time between buffer flushes: %6.6f.  Expected: %6.6f. \n', toc, expectedTimeBetweenFlushes)
                     processTimeHold = toc;
@@ -245,6 +245,9 @@ while 1
                     totalLoopTime         = toc;
                     writeReadAndProcessingTime = writeTime + channelizeTime + sendTime;
                     fprintf('Actual time between buffer flushes: %6.6f.  Expected: %6.6f. \n', totalLoopTime, expectedTimeBetweenFlushes)
+                    fprintf('Writing to Buffer Time: %6.6f. \n', writeTimeHold)
+                    fprintf('Buffer Read and Channelize Time: %6.6f. \n', channelizeTime)
+                    fprintf('Sending via UDP Time: %6.6f. \n', sendTime)
                     fprintf('Total Processing Time: %6.6f. \n', writeReadAndProcessingTime)
                     %Buffer just filled, so give it time to refill minus
                     %the processing time we currently need
