@@ -202,7 +202,7 @@ expectedFrameSize = rawFrameLength;
 state = 'run';
 fprintf('Channelizer: Setup complete. Awaiting commands...\n')
 tic;
-pausedTime = 0
+writeTime = 0
 while 1 
     switch state
         case 'run'
@@ -219,30 +219,33 @@ while 1
                 if sampsReceived~=expectedFrameSize
                     expectedFrameSize = round(mean([sampsReceived, expectedFrameSize]));
                 end
-                %tic
+                writeTimeHold = toc;
                 write(dataBufferFIFO,dataReceived(:));%Call with (:) to help coder realize it is a single channel
-                %toc
+                writeTime = writeTime + toc - writeTimeHold;
                 frameIndex = frameIndex+1;
 
                 if dataBufferFIFO.NumUnreadSamples>=samplesAtFlush
-                    
+                    writeTime = 0;
+
                     fprintf('Channelizer: Running - Buffer filled with %u samples. Flushing to channels. Currently receiving: %i samples per packet.\n',uint32(samplesAtFlush),int32(expectedFrameSize))
                     %fprintf('Actual time between buffer flushes: %6.6f.  Expected: %6.6f. \n', toc, expectedTimeBetweenFlushes)
-                    %tic;
+                    processTimeHold = toc;
                     frameIndex = 1;
                     y = channelizer(read(dataBufferFIFO,samplesAtFlush));
+                    channelizeTime = toc - processTimeHold;
                     %time2Channelize = toc;
                     for i = 1:nChannels
                         udps{i}(y(:,i))
                     end
+                    sendTime = toc - channelizeTime - processTimeHold;
                     %time2Send = toc - time2Channelize;
                     %fprintf('Time required to read buffer and channelize: %6.6f \n', time2Channelize)
                     %fprintf('Time required to send: %6.6f \n', time2Send)
                     
                     totalLoopTime         = toc;
-                    readAndProcessingTime = totalLoopTime;
+                    writeReadAndProcessingTime = writeTime + channelizeTime + sendTime;
                     fprintf('Actual time between buffer flushes: %6.6f.  Expected: %6.6f. \n', totalLoopTime, expectedTimeBetweenFlushes)
-                    fprintf('Processing Time: %6.6f. \n', readAndProcessingTime)
+                    fprintf('Total Processing Time: %6.6f. \n', writeReadAndProcessingTime)
                     %Buffer just filled, so give it time to refill minus
                     %the processing time we currently need
                     tic
