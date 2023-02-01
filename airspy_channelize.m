@@ -192,11 +192,11 @@ if decimationFactor == 100
 %     airspychannelize128(rawSampleRate);
 % elseif decimationFactor == 192
 %     airspychannelize192(rawSampleRate);
-elseif decimationFactor == 200
-    airspychannelize200(rawSampleRate);
+% elseif decimationFactor == 200
+%     airspychannelize200(rawSampleRate);
 % elseif decimationFactor == 256
 %     airspychannelize256(rawSampleRate);
+else
+    fprintf('Unsupported number of channels requests. Exiting.')
 end
-
-
 end

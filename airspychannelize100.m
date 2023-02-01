@@ -165,7 +165,7 @@ setup(udpCommand);
 %% SETUP UDP DATA INPUT OBJECT
 udpReceive = dsp.UDPReceiver('RemoteIPAddress','127.0.0.1',...%127.0.0.1',... %Accept all
     'LocalIPPort',udpReceivePort,...
-    'ReceiveBufferSize',2^18,...%2^16 = 65536, 2^18
+    'ReceiveBufferSize', 2^19,...%Based nextpow2(2*bytesPerBufferAtFlush)  %2^18,...%2^16 = 65536, 2^18
     'MaximumMessageLength',4096,...%1024,...%128 on a Mac and 2048 on Linux
     'MessageDataType','single',...
     'IsMessageComplex',true);
@@ -174,11 +174,13 @@ setup(udpReceive);
 
 %% SETUP UDP OUTPUT OBJECTS
 fprintf('Channelizer: Setting up output channel UDP ports...\n')
-samplesPerChannelMessage = 1024; % Must be a multiple of 128
+samplesPerChannelMessage = 256; %1024 Must be a multiple of 128
 samplesAtFlush           = samplesPerChannelMessage * decimationFactor;
 bytesPerChannelMessage   = bytesPerSample * samplesPerChannelMessage;
+bytesPerBufferAtFlush    = bytesPerSample * samplesAtFlush;
 sendBufferSize           = 2^nextpow2(bytesPerChannelMessage);
 dataBufferFIFO           = dsp.AsyncBuffer(2*samplesAtFlush);
+expectedTimeBetweenFlushes = samplesAtFlush/rawSampleRate;
 write(dataBufferFIFO,single(1+1i));%Write a single value so the number of channels is specified for coder. Specify complex single for airspy data
 read(dataBufferFIFO);     %Read out that single sample to empty the buffer.
 
@@ -200,6 +202,7 @@ expectedFrameSize = rawFrameLength;
 state = 'run';
 fprintf('Channelizer: Setup complete. Awaiting commands...\n')
 tic;
+pausedTime = 0
 while 1 
     switch state
         case 'run'
@@ -216,24 +219,42 @@ while 1
                 if sampsReceived~=expectedFrameSize
                     expectedFrameSize = round(mean([sampsReceived, expectedFrameSize]));
                 end
+                %tic
                 write(dataBufferFIFO,dataReceived(:));%Call with (:) to help coder realize it is a single channel
-                
+                %toc
                 frameIndex = frameIndex+1;
 
                 if dataBufferFIFO.NumUnreadSamples>=samplesAtFlush
+                    
                     fprintf('Channelizer: Running - Buffer filled with %u samples. Flushing to channels. Currently receiving: %i samples per packet.\n',uint32(samplesAtFlush),int32(expectedFrameSize))
-                    fprintf('Actual time between buffer flushes: %6.6f.  Expected: %6.6f. \n', toc, samplesAtFlush/rawSampleRate)
+                    %fprintf('Actual time between buffer flushes: %6.6f.  Expected: %6.6f. \n', toc, expectedTimeBetweenFlushes)
+                    %tic;
                     frameIndex = 1;
-                    tic;
                     y = channelizer(read(dataBufferFIFO,samplesAtFlush));
+                    %time2Channelize = toc;
                     for i = 1:nChannels
                         udps{i}(y(:,i))
                     end
-                    time2Channelize = toc;
-                    fprintf('Time required to channelize: %6.6f \n', time2Channelize)
+                    %time2Send = toc - time2Channelize;
+                    %fprintf('Time required to read buffer and channelize: %6.6f \n', time2Channelize)
+                    %fprintf('Time required to send: %6.6f \n', time2Send)
+                    
+                    totalLoopTime         = toc;
+                    readAndProcessingTime = totalLoopTime;
+                    fprintf('Actual time between buffer flushes: %6.6f.  Expected: %6.6f. \n', totalLoopTime, expectedTimeBetweenFlushes)
+                    fprintf('Processing Time: %6.6f. \n', readAndProcessingTime)
+                    %Buffer just filled, so give it time to refill minus
+                    %the processing time we currently need
+                    tic
+                    %pause(expectedTimeBetweenFlushes - 4 * readAndProcessingTime);
+                    %pausedTime = toc;
                 end
             else
-                pause(rawFrameTime/2);
+                %tic
+                pause(rawFrameTime)
+                %pause(expectedTimeBetweenFlushes)
+                %fprintf('***********Notice: I just paused for %6.6f \n',toc)
+                %fprintf('***********Notice: I just paused for \n',toc)
             end
             
             cmdReceived  = udpCommand();
