@@ -174,9 +174,9 @@ setup(udpReceive);
 
 %% SETUP UDP OUTPUT OBJECTS
 fprintf('Channelizer: Setting up output channel UDP ports...\n')
-samplesPerChannelMessage = 256; %1024 Must be a multiple of 128
+samplesPerChannelMessage = 1024; % Must be a multiple of 128
 samplesAtFlush           = samplesPerChannelMessage * decimationFactor;
-bytesPerChannelMessage   = bytesPerSample * samplesPerChannelMessage;
+bytesPerChannelMessage   = bytesPerSample * samplesPerChannelMessage + 1;%Adding 1 for the time stamp items on the front of each message. 
 bytesPerBufferAtFlush    = bytesPerSample * samplesAtFlush;
 sendBufferSize           = 2^nextpow2(bytesPerChannelMessage);
 dataBufferFIFO           = dsp.AsyncBuffer(2*samplesAtFlush);
@@ -199,16 +199,23 @@ for i = 1:numel(nChannels)
 end
 
 expectedFrameSize = rawFrameLength;
+bufferTimeStamp4Sending = complex(single(0));
 state = 'run';
 fprintf('Channelizer: Setup complete. Awaiting commands...\n')
 tic;
-writeTime = 0
+writeTime = 0;
+coder.cinclude('time.h');
 while 1 
     switch state
         case 'run'
             state = 'run';
             dataReceived = udpReceive();
             if (~isempty(dataReceived))
+                if frameIndex == 1
+                    bufferTimeStamp = round(10^3*posixtime(datetime('now')));
+                    bufferTimeStamp4Sending = int2singlecomplex(bufferTimeStamp);
+                end
+
                 sampsReceived = numel(dataReceived);
                 totalSampsReceived = totalSampsReceived + sampsReceived;
                 %Used to keep a running estimated of the expected frame
@@ -235,7 +242,9 @@ while 1
                     channelizeTime = toc - processTimeHold;
                     %time2Channelize = toc;
                     for i = 1:nChannels
-                        udps{i}(y(:,i))
+                        data = [bufferTimeStamp4Sending; y(:,i)];
+                        udps{i}(data)
+                        %udps{i}(y(:,i))
                     end
                     sendTime = toc - channelizeTime - processTimeHold;
                     %time2Send = toc - time2Channelize;
@@ -257,7 +266,14 @@ while 1
                 end
             else
                 %tic
-                pause(rawFrameTime)
+                if isdeployed
+                    coder.ceval('usleep',uint32(rawFrameTime * 1e6));
+                    %fprintf('Pausing \n')
+                else
+                    pause(rawFrameTime);  
+                    %fprintf('Pausing \n')
+                end
+                %pause(rawFrameTime)
                 %pause(expectedTimeBetweenFlushes)
                 %fprintf('***********Notice: I just paused for %6.6f \n',toc)
                 %fprintf('***********Notice: I just paused for \n',toc)
