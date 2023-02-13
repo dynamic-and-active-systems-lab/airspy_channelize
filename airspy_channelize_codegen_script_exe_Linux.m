@@ -41,8 +41,12 @@ cd(curr_dir)
 [mvzipstatus, mvzipcmdout] = system('mv portairspy_channelize.zip ~/Desktop/portairspy_channelize/portairspy_channelize.zip');
 disp('Zip transfer complete.')
 cd('~/Desktop/portairspy_channelize')
-[unzipstatus, unzipcmdout] = system('unzip portairspy_channelize');
-disp('Unzip complete.')
+[unzipstatus, unzipcmdout] = system('unzip -o portairspy_channelize');
+if unzipstatus==0
+    disp('Unzip complete.')
+else
+    error(['Compile failed with output: ',unzipcmdout])
+end
 [cp1status,cp1cmdout] = system('cp /usr/lib/x86_64-linux-gnu/libdl.so ~/Desktop/portairspy_channelize/libdl.so');
 systemcopycommand = ['cp ',matlabroot,'/sys/os/glnxa64/libiomp5.so ~/Desktop/portairspy_channelize/libiomp5.so'];
 [cp2status,cp2cmdout] = system(systemcopycommand);
