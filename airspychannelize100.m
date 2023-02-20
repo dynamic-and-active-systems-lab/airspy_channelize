@@ -247,6 +247,10 @@ while 1
                     %time2Channelize = toc;
                     sampsTransmitted = sampsTransmitted + samplesPerChannelMessage;
                     sampsTransmittedComplex = int2singlecomplex(sampsTransmitted);
+                    
+                    fprintf('sampsTransmitted (uint64): %u \n',sampsTransmitted)
+                    fprintf('sampsTransmitted (as single complex): %f + i%f \n',real(sampsTransmittedComplex),imag(sampsTransmittedComplex))
+
                     for i = 1:nChannels
                         %data = [bufferTimeStamp4Sending; y(:,i)];
                         data = [y(:,1); sampsTransmittedComplex ];
