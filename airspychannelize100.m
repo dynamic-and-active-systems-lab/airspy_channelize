@@ -146,6 +146,7 @@ rawFrameLength  = 128;
 rawFrameTime        = rawFrameLength/rawSampleRate;
 bytesPerSample      = 8;
 supportedSampleRates = 375000;%[912 768 456 384 256 192]*1000;
+outputSampleRate    = rawSampleRate / decimationFactor;
 
 if ~any(rawSampleRate == supportedSampleRates)
     error(['UAV-RT: Unsupported sample rate requested. Available rates are [',num2str(supportedSampleRates/1000),'] kS/s.'])
@@ -176,7 +177,7 @@ setup(udpReceive);
 fprintf('Channelizer: Setting up output channel UDP ports...\n')
 samplesPerChannelMessage = uint64(1024); % Must be a multiple of 128
 samplesAtFlush           = double(samplesPerChannelMessage) * decimationFactor;
-bytesPerChannelMessage   = bytesPerSample * double(samplesPerChannelMessage) + 1;%Adding 1 for the time stamp items on the front of each message. 
+bytesPerChannelMessage   = bytesPerSample * (double(samplesPerChannelMessage) + 1);%Adding 1 for the time stamp items on the front of each message. 
 bytesPerBufferAtFlush    = bytesPerSample * samplesAtFlush;
 sendBufferSize           = 2^nextpow2(bytesPerChannelMessage);
 dataBufferFIFO           = dsp.AsyncBuffer(2*samplesAtFlush);
@@ -194,75 +195,131 @@ frameIndex = 1;
 
 %Make initial call to udps. First call is very slow and can cause missed
 %samples if left within the while loop
-for i = 1:numel(nChannels)
+for i = 1:nChannels
     singleZeros = complex(single(zeros(samplesPerChannelMessage,1)));
     udps{i}(singleZeros);%Add one for blank time stamp
 end
+
 
 expectedFrameSize = rawFrameLength;
 bufferTimeStamp4Sending = complex(single(0));
 state = 'run';
 fprintf('Channelizer: Setup complete. Awaiting commands ###...\n')
 tic;
+loopStartToc = toc;
 writeTime = 0;
 coder.cinclude('time.h');
+resetTimeStampFlag = true;
+tocStart = 0;
+startTimeStamp = 0;
+clearBufferFlag = true;
 while 1 
     switch state
         case 'run'
             state = 'run';
+
+            if clearBufferFlag
+                    
+                    fprintf('Resetting data buffer\n')
+                    dataReceived = udpReceive();
+
+                    while ~isempty(dataReceived)
+                        fprintf('********CLEARING UDP DATA BUFFER*********\n');
+                        [dataReceived]  = udpReceive();
+                    end
+                    totalSampsReceived = uint64(0);
+                    clearBufferFlag = false;
+                    resetTimeStampFlag = true;
+            end
+
             dataReceived = udpReceive();
+
             if (~isempty(dataReceived))
-                if frameIndex == 1
-                    bufferTimeStamp = round(10^3*posixtime(datetime('now')));
-                    bufferTimeStamp4Sending = int2singlecomplex(bufferTimeStamp);
-                end
-
-                sampsReceived = uint64(numel(dataReceived));
+                
+                sampsReceived      = uint64(numel(dataReceived));
+                timeDurOfPacket    = double(sampsReceived) * 1/rawSampleRate;
                 totalSampsReceived = totalSampsReceived + sampsReceived;
-                fprintf('%d, ',int32(sampsReceived))
-                %Used to keep a running estimated of the expected frame
-                %size to help identifiy subsize frames received. 
-                %if sampsReceived < expectedFrameSize
-                %    disp('Subpacket received')
-                %end
-                %if sampsReceived~=expectedFrameSize
-                %    expectedFrameSize = round(mean([sampsReceived, expectedFrameSize]));
-                %end
-                writeTimeHold = toc;
-                write(dataBufferFIFO,dataReceived(:));%Call with (:) to help coder realize it is a single channel
-                writeTime = writeTime + toc - writeTimeHold;
-                frameIndex = frameIndex+1;
 
+                if resetTimeStampFlag
+                    fprintf('Resetting start time \n')
+                    startTimeStamp = posixtime(datetime('now')) - timeDurOfPacket;
+                    tocStart       = toc - timeDurOfPacket;
+                    frameIndex     = 1; 
+                    resetTimeStampFlag = false;
+                end
+                
+                
+                %fprintf('%d, ',int32(sampsReceived))
+
+                %Check for delayed or paused incoming data and reset start
+                %times if delay is detected
+                sampBasedElapsedTime = double(totalSampsReceived) * 1 / rawSampleRate;
+                tocBasedElapseTime   = toc - tocStart;
+
+                %fprintf('%f \n',tocBasedElapseTime - sampBasedElapsedTime)
+                if tocBasedElapseTime > 1 + sampBasedElapsedTime %20 ms
+                    fprintf('************************************\n')
+                    fprintf('Major deviation from sample time and system clock time detected. Resetting data buffer and start time.\n')
+                    fprintf('************************************\n')
+                    dataBufferFIFO.reset(); %Will dump data and avoide the flush step below
+                    clearBufferFlag    = true;
+                    resetTimeStampFlag = true;
+                else
+                    %Used to keep a running estimated of the expected frame
+                    %size to help identifiy subsize frames received.
+                    %if sampsReceived < expectedFrameSize
+                    %    disp('Subpacket received')
+                    %end
+                    %if sampsReceived~=expectedFrameSize
+                    %    expectedFrameSize = round(mean([sampsReceived, expectedFrameSize]));
+                    %end
+previousToc = toc;
+                    write(dataBufferFIFO, dataReceived(:));%Call with (:) to help coder realize it is a single channel
+                    writeTime = writeTime + toc - previousToc;
+                    frameIndex = frameIndex+1;
+                end
+                
                 if dataBufferFIFO.NumUnreadSamples>=samplesAtFlush
                     fprintf('\n')
+                    fprintf('Current diff b/t toc and samp time: %f s \n',tocBasedElapseTime - sampBasedElapsedTime)
                     writeTimeHold = writeTime;
                     writeTime = 0;
                     %fprintf('Channelizer: Running - Buffer filled with %u samples. Flushing to channels. Currently receiving: %i samples per packet.\n',uint32(samplesAtFlush),int32(expectedFrameSize))
                     fprintf('Channelizer: Running - Buffer filled with %u samples. Flushing to channels.\n',uint32(samplesAtFlush))
                     %fprintf('Actual time between buffer flushes: %6.6f.  Expected: %6.6f. \n', toc, expectedTimeBetweenFlushes)
-                    processTimeHold = toc;
+previousToc = toc;
                     frameIndex = 1;
                     y = channelizer(read(dataBufferFIFO,samplesAtFlush));
-                    channelizeTime = toc - processTimeHold;
+                    channelizeTime = toc - previousToc;
                     %time2Channelize = toc;
+
+                    %bufferTimeStamp = round(10^3*(startTimeStamp + double(sampsTransmitted) * 1 / outputSampleRate));
+                    %bufferTimeStamp4Sending = int2singlecomplex(bufferTimeStamp);
+                    %fprintf('bufferTimeStamp4Sending: %f + i %f \n',real(bufferTimeStamp4Sending),imag(bufferTimeStamp4Sending))
+                    bufferTimeStamp        = startTimeStamp + double(sampsTransmitted) * 1 / outputSampleRate;
+                    bufferTimeStampSec     = floor(bufferTimeStamp);
+                    bufferTimeStampNanoSec = mod(bufferTimeStamp,1)*10^9;
+                    bufferTimeStamp4Sending = single(complex(bufferTimeStampSec, bufferTimeStampNanoSec));
+                    fprintf('bufferTimeStamp4Sending: %f + i %f \n',real(bufferTimeStamp4Sending),imag(bufferTimeStamp4Sending))
+
                     sampsTransmitted = sampsTransmitted + samplesPerChannelMessage;
                     sampsTransmittedComplex = int2singlecomplex(sampsTransmitted);
                     
                     fprintf('sampsTransmitted (uint64): %u \n',sampsTransmitted)
                     fprintf('sampsTransmitted (as single complex): %f + i%f \n',real(sampsTransmittedComplex),imag(sampsTransmittedComplex))
-
+previousToc = toc;
                     for i = 1:nChannels
-                        %data = [bufferTimeStamp4Sending; y(:,i)];
-                        data = [y(:,1); sampsTransmittedComplex ];
+                        data = [bufferTimeStamp4Sending; y(:,i)];
+                        %data = [y(:,1); sampsTransmittedComplex ];
                         udps{i}(data)
                         %udps{i}(y(:,i))
                     end
-                    sendTime = toc - channelizeTime - processTimeHold;
+                    sendTime = toc - previousToc;
                     %time2Send = toc - time2Channelize;
                     %fprintf('Time required to read buffer and channelize: %6.6f \n', time2Channelize)
                     %fprintf('Time required to send: %6.6f \n', time2Send)
                     
-                    totalLoopTime         = toc;
+                    totalLoopTime         = toc - loopStartToc;
                     writeReadAndProcessingTime = writeTime + channelizeTime + sendTime;
                     fprintf('Actual time between buffer flushes: %6.6f.  Expected: %6.6f. \n', totalLoopTime, expectedTimeBetweenFlushes)
                     fprintf('Writing to Buffer Time: %6.6f. \n', writeTimeHold)
@@ -272,7 +329,7 @@ while 1
                     fprintf('Total Samples Transmitted Samples: %u. \n', sampsTransmitted)
                     %Buffer just filled, so give it time to refill minus
                     %the processing time we currently need
-                    tic
+                    loopStartToc = toc;
                     %pause(expectedTimeBetweenFlushes - 4 * readAndProcessingTime);
                     %pausedTime = toc;
                 end
