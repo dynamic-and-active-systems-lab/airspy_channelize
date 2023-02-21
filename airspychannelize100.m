@@ -257,7 +257,7 @@ while 1
                 tocBasedElapseTime   = toc - tocStart;
 
                 %fprintf('%f \n',tocBasedElapseTime - sampBasedElapsedTime)
-                if tocBasedElapseTime > 1 + sampBasedElapsedTime %20 ms
+                if tocBasedElapseTime > 0.1 + sampBasedElapsedTime %20 ms
                     fprintf('************************************\n')
                     fprintf('Major deviation from sample time and system clock time detected. Resetting data buffer and start time.\n')
                     fprintf('************************************\n')
@@ -296,17 +296,18 @@ previousToc = toc;
                     %bufferTimeStamp = round(10^3*(startTimeStamp + double(sampsTransmitted) * 1 / outputSampleRate));
                     %bufferTimeStamp4Sending = int2singlecomplex(bufferTimeStamp);
                     %fprintf('bufferTimeStamp4Sending: %f + i %f \n',real(bufferTimeStamp4Sending),imag(bufferTimeStamp4Sending))
-                    bufferTimeStamp        = startTimeStamp + double(sampsTransmitted) * 1 / outputSampleRate;
-                    bufferTimeStampSec     = floor(bufferTimeStamp);
-                    bufferTimeStampNanoSec = mod(bufferTimeStamp,1)*10^9;
-                    bufferTimeStamp4Sending = single(complex(bufferTimeStampSec, bufferTimeStampNanoSec));
-                    fprintf('bufferTimeStamp4Sending: %f + i %f \n',real(bufferTimeStamp4Sending),imag(bufferTimeStamp4Sending))
+                    bufferTimeStamp         = startTimeStamp + double(sampsTransmitted) * 1 / outputSampleRate;
+                    bufferTimeStampSec      = uint32(floor(bufferTimeStamp));
+                    bufferTimeStampNanoSec  = uint32(mod(bufferTimeStamp,1)*10^9);
+                    bufferTimeStamp4Sending = complex(typecast(bufferTimeStampSec,    'single'),...
+                                                      typecast(bufferTimeStampNanoSec,'single'));
+                    fprintf('bufferTimeStamp4Sending: %u + i %u \n',bufferTimeStampSec,bufferTimeStampNanoSec)
 
                     sampsTransmitted = sampsTransmitted + samplesPerChannelMessage;
-                    sampsTransmittedComplex = int2singlecomplex(sampsTransmitted);
+                    %sampsTransmittedComplex = int2singlecomplex(sampsTransmitted);
                     
                     fprintf('sampsTransmitted (uint64): %u \n',sampsTransmitted)
-                    fprintf('sampsTransmitted (as single complex): %f + i%f \n',real(sampsTransmittedComplex),imag(sampsTransmittedComplex))
+                    %fprintf('sampsTransmitted (as single complex): %f + i%f \n',real(sampsTransmittedComplex),imag(sampsTransmittedComplex))
 previousToc = toc;
                     for i = 1:nChannels
                         data = [bufferTimeStamp4Sending; y(:,i)];
