@@ -105,7 +105,7 @@ firstChannelSendIPPort      = 20000;
 startTimeStamp              = 0;
 bufferTimeStamp4Sending     = complex(single(0));
 
-tocElapsedAdjust            = 0;
+tocElapsedSubtract          = 0;
 tocBasedElapseTime          = 0;
 sampBasedElapsedTime        = 0;
 
@@ -140,13 +140,12 @@ while true
             % Because of this we need to be able to subtract out this waiting time from our elapsed
             % time calcuations. We use the tocElapsedAdjust for this purpose.
             tocElapsedSubtract  = toc - timeDurOfPacket;
-            tocElapsedAdjust    = double(totalSampsReceived) * (1 / incomingSampleRate);
         else
         end
 
         totalSampsReceived      = totalSampsReceived + sampsReceived;
         sampBasedElapsedTime    = double(totalSampsReceived) * (1 / incomingSampleRate);
-        tocBasedElapseTime      = toc - tocElapsedAdjust;
+        tocBasedElapseTime      = toc - tocElapsedSubtract;
 
         % Reset if a big time offset developes
         timeDiff = tocBasedElapseTime - sampBasedElapsedTime;
