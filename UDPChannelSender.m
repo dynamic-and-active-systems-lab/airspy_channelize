@@ -46,7 +46,7 @@ classdef UDPChannelSender < handle
                 end
 
                 self.channelIndices(i)  = channelIndex;
-                channelSenders{i       = udpSender;
+                channelSenders{i}       = udpSender;
             end
             self.channelSenders = channelSenders;
         end
