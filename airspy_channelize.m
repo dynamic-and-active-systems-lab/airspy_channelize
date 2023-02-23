@@ -116,7 +116,7 @@ read(dataBufferFIFO);                   % Read out that single sample to empty t
 
 channelizer = dsp.Channelizer('NumFrequencyBands', nChannels);
 
-udpReceiver         = ComplexSingleSamplesUDPReceiver('127.0.0.1', 10000, 2048);
+udpReceiver         = ComplexSingleSamplesUDPReceiver('10.0.0.8', 10000, 2048);
 udpChannelSender    = UDPChannelSender('127.0.0.1', firstChannelSendIPPort, channelsUsed, sampleCountPerChannelOutput + 1); % + 1 for timestamp
 
 % Start by clearing any stale data
@@ -132,7 +132,6 @@ while true
         sampsReceived = uint64(numel(dataReceived));
 
         if totalSampsReceived == 0
-            setStartTimeStamp   = false;
             timeDurOfPacket     = double(sampsReceived) * (1 / incomingSampleRate);
             startTimeStamp      = posixtime(datetime('now')) - timeDurOfPacket;
             % At this point the difference between tic and toc for the first packet is arbitrary.
@@ -140,7 +139,6 @@ while true
             % Because of this we need to be able to subtract out this waiting time from our elapsed
             % time calcuations. We use the tocElapsedAdjust for this purpose.
             tocElapsedSubtract  = toc - timeDurOfPacket;
-        else
         end
 
         totalSampsReceived      = totalSampsReceived + sampsReceived;
