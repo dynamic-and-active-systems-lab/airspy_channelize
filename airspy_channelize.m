@@ -105,7 +105,7 @@ firstChannelSendIPPort      = 20000;
 startTimeStamp              = 0;
 bufferTimeStamp4Sending     = complex(single(0));
 
-tocStart                    = 0;
+tocElapsedAdjust            = 0;
 tocBasedElapseTime          = 0;
 sampBasedElapsedTime        = 0;
 
@@ -124,6 +124,7 @@ udpReceiver.clear();
 
 fprintf("Waiting for new udp data\n");
 
+tic;
 while true
     dataReceived = udpReceiver.receive();
 
@@ -134,19 +135,27 @@ while true
             setStartTimeStamp   = false;
             timeDurOfPacket     = double(sampsReceived) * (1 / incomingSampleRate);
             startTimeStamp      = posixtime(datetime('now')) - timeDurOfPacket;
-            tocStart            = tic - timeDurOfPacket;
+            % At this point the difference between tic and toc for the first packet is arbitrary.
+            % Since we may have been sitting waiting for the first packet to come in.
+            % Because of this we need to be able to subtract out this waiting time from our elapsed
+            % time calcuations. We use the tocElapsedAdjust for this purpose.
+            tocElapsedSubtract  = toc - timeDurOfPacket;
+            tocElapsedAdjust    = double(totalSampsReceived) * (1 / incomingSampleRate);
+        else
         end
 
-        totalSampsReceived   = totalSampsReceived + sampsReceived;
-        sampBasedElapsedTime = double(totalSampsReceived) * (1 / incomingSampleRate);
-        tocBasedElapseTime   = toc - tocStart;
+        totalSampsReceived      = totalSampsReceived + sampsReceived;
+        sampBasedElapsedTime    = double(totalSampsReceived) * (1 / incomingSampleRate);
+        tocBasedElapseTime      = toc - tocElapsedAdjust;
 
         % Reset if a big time offset developes
         timeDiff = tocBasedElapseTime - sampBasedElapsedTime;
         if abs(timeDiff) > 0.1
             fprintf('Resetting buffers to due to drift: Current diff b/t toc and samp time: %f s \n', timeDiff);
             dataBufferFIFO.reset();
-            clearBufferFlag = true;
+            udpReceiver.clear();
+            totalSampsReceived = uint64(0);
+            sampsTransmitted   = uint32(0);
         end
 
         % Collect samples in FIFO until we have enough to channelize
