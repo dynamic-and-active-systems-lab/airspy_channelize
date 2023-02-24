@@ -19,14 +19,15 @@ classdef UDPChannelSender < handle
         %                   channel 2 is output on 20003
         %                   channel 3 is output on 20005
         function self = UDPChannelSender(ipAddress, firstIPPort, channelsUsed, samplesPerFrame)
+            if isempty(channelsUsed)
+                channelsUsed = int32([ 1:100 ]);
+            end
+
             % Pre-allocate storage for coder
             cChannels           = numel(channelsUsed);
             self.channelIndices = zeros(1, cChannels);
             channelSenders      = cell(1, cChannels);   % 100 max channels * 2 for secondary ports
 
-            if isempty(channelsUsed)
-                channelsUsed = int32([ 1:100 ]);
-            end
             for i = 1 : cChannels
                 channelIndex = channelsUsed(i);
                 assert(channelIndex ~= 0);
