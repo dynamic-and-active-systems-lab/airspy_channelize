@@ -1,0 +1,3 @@
+[submodule "matlab-coder-utils"]
+	path = matlab-coder-utils
+	url = https://github.com/DonLakeFlyer/matlab-coder-utils.git
