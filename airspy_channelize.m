@@ -116,7 +116,9 @@ read(dataBufferFIFO);                   % Read out that single sample to empty t
 
 channelizer = dsp.Channelizer('NumFrequencyBands', nChannels);
 
-udpReceiver         = ComplexSingleSamplesUDPReceiver('127.0.0.1', 10000, 1024);
+% The value for sampleFrameSize (2039) must exactly what csdr is sending per frame
+csdrSampleFrameSize = 2039;
+udpReceiver         = ComplexSingleSamplesUDPReceiver('127.0.0.1', 10000, csdrSampleFrameSize);
 udpChannelSender    = UDPChannelSender('127.0.0.1', firstChannelSendIPPort, channelsUsed, sampleCountPerChannelOutput + 1); % + 1 for timestamp
 
 % Start by clearing any stale data
