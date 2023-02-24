@@ -19,9 +19,8 @@ After cloning this repo, the airspy_channelize.m function can be run directly in
 ### Setup for building a compiled executable 
 The `airspy_channelize` function can be converted to an executable using Matlab Coder. In this way the channelizer will not require Matlab to run. Steps to build:
 
-* Start from root airspy_channelize direction
 * Run 'airspy_channelize_codegen_script.m' in Matlab. This will create the codegen directory of source code.
-* Run 'make -f matlab-coder-utils/Makefile PRODUCT_NAME=airspy_channelize' at the command prompt. This will create an 'airspy_channelize' executable.
+* Run 'make -f matlab-coder-utils/Makefile PRODUCT_NAME=airspy_channelize' from the root airspy_channelize directory at the command prompt. This will create an 'airspy_channelize' executable.
 
 ## Basic Operation
 ### Starting the program
@@ -33,6 +32,7 @@ If the channel specified is a positive value:
 * channel 1 is output on 20000
 * channel 2 is output on 20002
 * channel 3 is output on 20004
+
 If the channel specified is negative then the data is output on a secondary port as well as the main port. Example for secondary ports:
 * channel 1 is also output on 20001
 * channel 2 is also output on 20003
