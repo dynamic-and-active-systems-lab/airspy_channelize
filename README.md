@@ -15,7 +15,7 @@ The development of this code was funded via [National Science Foundation grant n
 
 ## Setup
 ### Setup for running in Matlab
-After cloning this repo, the airspy_channelize.m function can be run directly in Matlab. No additional setup should be needed.
+After cloning this repo, the airspy_channelize.m function can be run directly in Matlab. You must first add the 'matlab-coder-utils/c-udp' to the matlab path using the Set Path dialog.
 ### Setup for building a compiled executable 
 The `airspy_channelize` function can be converted to an executable using Matlab Coder. In this way the channelizer will not require Matlab to run. Steps to build:
 
