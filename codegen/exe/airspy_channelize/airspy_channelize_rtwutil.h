@@ -5,7 +5,7 @@
 // File: airspy_channelize_rtwutil.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 26-Feb-2023 12:01:14
+// C/C++ source code generated on  : 26-Feb-2023 12:32:19
 //
 
 #ifndef AIRSPY_CHANNELIZE_RTWUTIL_H
@@ -35,6 +35,8 @@ extern void c_rtErrorWithMessageID(const char *aFcnName, int aLineNum);
 extern void f_rtErrorWithMessageID(const char *aFcnName, int aLineNum);
 
 extern void g_rtErrorWithMessageID(const char *aFcnName, int aLineNum);
+
+extern void h_rtErrorWithMessageID(const char *aFcnName, int aLineNum);
 
 extern void rtDynamicBoundsError(int aIndexValue, int aLoBound, int aHiBound,
                                  const rtBoundsCheckInfo *aInfo);

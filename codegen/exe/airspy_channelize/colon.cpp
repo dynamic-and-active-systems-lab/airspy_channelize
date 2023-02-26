@@ -5,7 +5,7 @@
 // File: colon.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 26-Feb-2023 12:01:14
+// C/C++ source code generated on  : 26-Feb-2023 12:32:19
 //
 
 // Include Files
@@ -25,7 +25,7 @@
 namespace coder {
 void eml_integer_colon_dispatcher(int a, int b, ::coder::array<int, 2U> &y)
 {
-  static rtRunTimeErrorInfo o_emlrtRTEI{
+  static rtRunTimeErrorInfo p_emlrtRTEI{
       291,                           // lineNo
       "integer_colon_length_nonnegd" // fName
   };
@@ -35,7 +35,7 @@ void eml_integer_colon_dispatcher(int a, int b, ::coder::array<int, 2U> &y)
   } else {
     bma = b - a;
     if (bma < 0) {
-      c_rtErrorWithMessageID(o_emlrtRTEI.fName, o_emlrtRTEI.lineNo);
+      c_rtErrorWithMessageID(p_emlrtRTEI.fName, p_emlrtRTEI.lineNo);
     }
     bma++;
   }

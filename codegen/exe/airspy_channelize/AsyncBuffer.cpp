@@ -5,7 +5,7 @@
 // File: AsyncBuffer.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 26-Feb-2023 12:01:14
+// C/C++ source code generated on  : 26-Feb-2023 12:32:19
 //
 
 // Include Files
@@ -153,11 +153,11 @@ AsyncBuffer::~AsyncBuffer()
 //
 void AsyncBuffer::read()
 {
-  static rtRunTimeErrorInfo o_emlrtRTEI{
+  static rtRunTimeErrorInfo p_emlrtRTEI{
       103,                 // lineNo
       "AsyncBuffercg/read" // fName
   };
-  static rtRunTimeErrorInfo p_emlrtRTEI{
+  static rtRunTimeErrorInfo q_emlrtRTEI{
       14,                   // lineNo
       "validatenonnegative" // fName
   };
@@ -200,11 +200,11 @@ void AsyncBuffer::read()
     numRows = 204800;
   }
   if (numRows < 0) {
-    c_rtErrorWithMessageID("number of rows", p_emlrtRTEI.fName,
-                           p_emlrtRTEI.lineNo);
+    c_rtErrorWithMessageID("number of rows", q_emlrtRTEI.fName,
+                           q_emlrtRTEI.lineNo);
   }
   if (numRows > 204800) {
-    d_rtErrorWithMessageID(o_emlrtRTEI.fName, o_emlrtRTEI.lineNo);
+    d_rtErrorWithMessageID(p_emlrtRTEI.fName, p_emlrtRTEI.lineNo);
   }
   if (!pBuffer.AsyncBuffercgHelper_isInitialized) {
     e_rtErrorWithMessageID(d_emlrtRTEI.fName, d_emlrtRTEI.lineNo);

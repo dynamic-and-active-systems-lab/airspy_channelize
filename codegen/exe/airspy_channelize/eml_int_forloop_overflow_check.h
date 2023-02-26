@@ -5,7 +5,7 @@
 // File: eml_int_forloop_overflow_check.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 26-Feb-2023 12:01:14
+// C/C++ source code generated on  : 26-Feb-2023 12:32:19
 //
 
 #ifndef EML_INT_FORLOOP_OVERFLOW_CHECK_H
@@ -18,9 +18,11 @@
 
 // Function Declarations
 namespace coder {
+void b_check_forloop_overflow_error();
+
 void check_forloop_overflow_error();
 
-}
+} // namespace coder
 
 #endif
 //

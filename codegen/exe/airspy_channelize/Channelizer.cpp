@@ -5,7 +5,7 @@
 // File: Channelizer.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 26-Feb-2023 12:01:14
+// C/C++ source code generated on  : 26-Feb-2023 12:32:19
 //
 
 // Include Files
@@ -164,7 +164,7 @@ void Channelizer::step(const ::coder::array<creal32_T, 1U> &varargin_1,
       "Channelizer/firpolyphase_channelizer_cg", // fName
       "C:\\Program Files\\MATLAB\\toolbox\\dsp\\dsp\\+dsp\\Channelizer.m" // pName
   };
-  static rtRunTimeErrorInfo o_emlrtRTEI{
+  static rtRunTimeErrorInfo p_emlrtRTEI{
       665,                             // lineNo
       "Channelizer/validateInputsImpl" // fName
   };
@@ -1515,7 +1515,7 @@ void Channelizer::step(const ::coder::array<creal32_T, 1U> &varargin_1,
     }
     isInitialized = 1;
     if ((numChannels != -1) && (numChannels != 0) && (numChannels != 1)) {
-      b_rtErrorWithMessageID(o_emlrtRTEI.fName, o_emlrtRTEI.lineNo);
+      b_rtErrorWithMessageID(p_emlrtRTEI.fName, p_emlrtRTEI.lineNo);
     }
     numChannels = 1;
     for (k = 0; k < 1201; k++) {

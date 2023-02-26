@@ -5,7 +5,7 @@
 // File: validator_check_size.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 26-Feb-2023 12:01:14
+// C/C++ source code generated on  : 26-Feb-2023 12:32:19
 //
 
 // Include Files
@@ -16,41 +16,9 @@
 #include "int2str.h"
 #include "rt_nonfinite.h"
 #include "coder_array.h"
-#include "omp.h"
-#include <cstdio>
-#include <cstdlib>
-#include <sstream>
-#include <stdexcept>
 #include <string>
 
-// Function Declarations
-static void h_rtErrorWithMessageID(const char *aFcnName, int aLineNum);
-
 // Function Definitions
-//
-// Arguments    : const char *aFcnName
-//                int aLineNum
-// Return Type  : void
-//
-static void h_rtErrorWithMessageID(const char *aFcnName, int aLineNum)
-{
-  std::string errMsg;
-  std::stringstream outStream;
-  outStream
-      << "Number of elements must not change. Use [] as one of the size inputs "
-         "to automatically calculate the appropriate size for that di"
-         "mension.";
-  outStream << "\n";
-  ((((outStream << "Error in ") << aFcnName) << " (line ") << aLineNum) << ")";
-  if (omp_in_parallel()) {
-    errMsg = outStream.str();
-    std::fprintf(stderr, "%s", errMsg.c_str());
-    std::abort();
-  } else {
-    throw std::runtime_error(outStream.str());
-  }
-}
-
 //
 // Arguments    : const ::coder::array<int, 2U> &in
 //                ::coder::array<int, 2U> &out
@@ -61,7 +29,7 @@ namespace internal {
 void validator_check_size(const ::coder::array<int, 2U> &in,
                           ::coder::array<int, 2U> &out)
 {
-  static rtRunTimeErrorInfo o_emlrtRTEI{
+  static rtRunTimeErrorInfo p_emlrtRTEI{
       143,                   // lineNo
       "validator_check_size" // fName
   };
@@ -93,7 +61,7 @@ void validator_check_size(const ::coder::array<int, 2U> &in,
     }
   } else if (b1) {
     if (sizes_idx_1 != 0) {
-      h_rtErrorWithMessageID(o_emlrtRTEI.fName, o_emlrtRTEI.lineNo);
+      h_rtErrorWithMessageID(p_emlrtRTEI.fName, p_emlrtRTEI.lineNo);
     }
     out.set_size(1, 0);
   } else {
