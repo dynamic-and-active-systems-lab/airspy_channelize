@@ -40,7 +40,7 @@ classdef UDPChannelSender < handle
                 fprintf("Setting up main channel %u port %u\n", uint32(absChannelIndex), uint32(ipPort));
                 udpSender = ComplexSingleSamplesUDPSender(ipAddress, ipPort, samplesPerFrame);
 
-                if channelIndex > 0
+                if channelIndex < 0
                     % Set up secondary channel output
                     ipPort = firstIPPort + ((absChannelIndex - 1) * 2) + 1;
                     fprintf("Setting up secondary channel %u port %u\n", uint32(absChannelIndex), uint32(ipPort));
