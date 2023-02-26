@@ -23,12 +23,31 @@ classdef UDPChannelSender < handle
                 channelsUsed = int32([ 1:100 ]);
             end
 
-            % Pre-allocate storage for coder
-            cChannels           = numel(channelsUsed);
-            self.channelIndices = zeros(1, cChannels);
-            channelSenders      = cell(1, cChannels);   % 100 max channels * 2 for secondary ports
+            % Determine how many channel slots we need
+            cChannelsUsed = numel(channelsUsed);
+            cChannelSlots = uint32(0);
+            for i = 1 : cChannelsUsed
+                channelIndex = channelsUsed(i);
+                if channelIndex < 0
+                    cChannelSlots = cChannelSlots + 2;
+                else 
+                    cChannelSlots = cChannelSlots + 1;
+                end
+            end
 
-            for i = 1 : cChannels
+            % Pre-allocate storage for coder
+            self.channelIndices = zeros(1, cChannelSlots);
+            channelSenders      = cell(1, cChannelSlots);
+
+            % We stuff in the first channel first into all slots to keep code happy.
+            % Coder wants all cells to have a value and the code in this function is too complicated for it to understand that is the case.
+            udpSender = ComplexSingleSamplesUDPSender(ipAddress, firstIPPort +  ((abs(channelsUsed(1)) - 1) * 2) + 1, samplesPerFrame); 
+            for i = 1 : cChannelSlots
+                channelSenders{i} = udpSender;
+            end
+
+            nextChannelSlot = uint32(1);
+            for i = 1 : cChannelsUsed
                 channelIndex = channelsUsed(i);
                 assert(channelIndex ~= 0);
                 assert(channelIndex >= -100 && channelIndex <= 100);
@@ -40,15 +59,19 @@ classdef UDPChannelSender < handle
                 fprintf("Setting up main channel %u port %u\n", uint32(absChannelIndex), uint32(ipPort));
                 udpSender = ComplexSingleSamplesUDPSender(ipAddress, ipPort, samplesPerFrame);
 
+                self.channelIndices(nextChannelSlot)    = absChannelIndex;
+                channelSenders{nextChannelSlot}         = udpSender;
+                nextChannelSlot                         = nextChannelSlot + 1;
+
                 if channelIndex < 0
                     % Set up secondary channel output
                     ipPort = firstIPPort + ((absChannelIndex - 1) * 2) + 1;
                     fprintf("Setting up secondary channel %u port %u\n", uint32(absChannelIndex), uint32(ipPort));
                     udpSender = ComplexSingleSamplesUDPSender(ipAddress, firstIPPort +  ((absChannelIndex - 1) * 2) + 1, samplesPerFrame); 
+                    self.channelIndices(nextChannelSlot)    = absChannelIndex;
+                    channelSenders{nextChannelSlot}         = udpSender;
+                    nextChannelSlot                         = nextChannelSlot + 1;
                 end
-
-                self.channelIndices(i)  = channelIndex;
-                channelSenders{i}       = udpSender;
             end
             self.channelSenders = channelSenders;
         end
