@@ -34,12 +34,13 @@ classdef UDPChannelSender < handle
                 assert(channelIndex >= -100 && channelIndex <= 100);
 
                 absChannelIndex = abs(channelIndex);
+
+                % Set up main channel output
+                ipPort = firstIPPort + ((absChannelIndex - 1) * 2);
+                fprintf("Setting up main channel %u port %u\n", uint32(absChannelIndex), uint32(ipPort));
+                udpSender = ComplexSingleSamplesUDPSender(ipAddress, ipPort, samplesPerFrame);
+
                 if channelIndex > 0
-                    % Set up main channel output
-                    ipPort = firstIPPort + ((absChannelIndex - 1) * 2);
-                    fprintf("Setting up main channel %u port %u\n", uint32(absChannelIndex), uint32(ipPort));
-                    udpSender = ComplexSingleSamplesUDPSender(ipAddress, ipPort, samplesPerFrame);
-                else
                     % Set up secondary channel output
                     ipPort = firstIPPort + ((absChannelIndex - 1) * 2) + 1;
                     fprintf("Setting up secondary channel %u port %u\n", uint32(absChannelIndex), uint32(ipPort));
