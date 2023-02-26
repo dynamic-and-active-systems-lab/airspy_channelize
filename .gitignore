@@ -41,7 +41,6 @@ airspy_channelize.prj
 
 # Other files
 decimationfactorsandrates.xlsx
-airspy_channelize
 *.asv
 demochannelreceive.m
 airspychannelize48_tunable_sender.m
