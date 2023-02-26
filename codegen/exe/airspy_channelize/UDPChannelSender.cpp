@@ -5,7 +5,7 @@
 // File: UDPChannelSender.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 26-Feb-2023 09:39:03
+// C/C++ source code generated on  : 26-Feb-2023 11:45:56
 //
 
 // Include Files
@@ -43,7 +43,7 @@ UDPChannelSender *UDPChannelSender::init(coder::array<int, 2U> &channelsUsed)
   static rtBoundsCheckInfo f_emlrtBCI{
       -1,                                                 // iFirst
       -1,                                                 // iLast
-      49,                                                 // lineNo
+      50,                                                 // lineNo
       37,                                                 // colNo
       "self.channelIndices(i)",                           // aName
       "UDPChannelSender/UDPChannelSender",                // fName
@@ -53,7 +53,7 @@ UDPChannelSender *UDPChannelSender::init(coder::array<int, 2U> &channelsUsed)
   static rtBoundsCheckInfo g_emlrtBCI{
       -1,                                                 // iFirst
       -1,                                                 // iLast
-      50,                                                 // lineNo
+      51,                                                 // lineNo
       32,                                                 // colNo
       "channelSenders",                                   // aName
       "UDPChannelSender/UDPChannelSender",                // fName
@@ -75,7 +75,8 @@ UDPChannelSender *UDPChannelSender::init(coder::array<int, 2U> &channelsUsed)
   coder::array<int, 2U> b__in;
   int absChannelIndex;
   int i;
-  int jtilecol;
+  int ibtile;
+  int jcol;
   int outsize_idx_1;
   int sizes_idx_1;
   char b_tmp_data[10];
@@ -120,68 +121,69 @@ UDPChannelSender *UDPChannelSender::init(coder::array<int, 2U> &channelsUsed)
   b_channelSenders.set_size(1, channelsUsed.size(1));
   //  100 max channels * 2 for secondary ports
   i = channelsUsed.size(1);
-  for (int b_i{0}; b_i < i; b_i++) {
+  for (sizes_idx_1 = 0; sizes_idx_1 < i; sizes_idx_1++) {
     ComplexSingleSamplesUDPSender udpSender;
-    if (b_i + 1 > channelsUsed.size(1)) {
-      rtDynamicBoundsError(b_i + 1, 1, channelsUsed.size(1), &e_emlrtBCI);
+    if (sizes_idx_1 + 1 > channelsUsed.size(1)) {
+      rtDynamicBoundsError(sizes_idx_1 + 1, 1, channelsUsed.size(1),
+                           &e_emlrtBCI);
     }
-    if (channelsUsed[b_i] == 0) {
+    if (channelsUsed[sizes_idx_1] == 0) {
       c_rtErrorWithMessageID(o_emlrtRTEI.fName, o_emlrtRTEI.lineNo);
     }
-    if ((channelsUsed[b_i] < -100) || (channelsUsed[b_i] > 100)) {
+    if ((channelsUsed[sizes_idx_1] < -100) ||
+        (channelsUsed[sizes_idx_1] > 100)) {
       c_rtErrorWithMessageID(p_emlrtRTEI.fName, p_emlrtRTEI.lineNo);
     }
-    jtilecol = channelsUsed[b_i];
-    if (jtilecol <= MIN_int32_T) {
+    jcol = channelsUsed[sizes_idx_1];
+    if (jcol <= MIN_int32_T) {
       outsize_idx_1 = MAX_int32_T;
     } else {
-      outsize_idx_1 = -jtilecol;
+      outsize_idx_1 = -jcol;
     }
-    if (channelsUsed[b_i] < 0) {
+    if (channelsUsed[sizes_idx_1] < 0) {
       absChannelIndex = outsize_idx_1;
     } else {
-      absChannelIndex = channelsUsed[b_i];
+      absChannelIndex = channelsUsed[sizes_idx_1];
     }
-    if (channelsUsed[b_i] > 0) {
-      //  Set up main channel output
-      if (absChannelIndex < -2147483647) {
-        outsize_idx_1 = MIN_int32_T;
-      } else {
-        outsize_idx_1 = absChannelIndex - 1;
-      }
-      if (outsize_idx_1 > 1073741823) {
-        outsize_idx_1 = MAX_int32_T;
-      } else if (outsize_idx_1 <= -1073741824) {
-        outsize_idx_1 = MIN_int32_T;
-      } else {
-        outsize_idx_1 <<= 1;
-      }
-      if (outsize_idx_1 > 2147463647) {
-        outsize_idx_1 = MAX_int32_T;
-      } else {
-        outsize_idx_1 += 20000;
-      }
-      if (absChannelIndex < 0) {
-        absChannelIndex = 0;
-      }
-      jtilecol = outsize_idx_1;
-      if (outsize_idx_1 < 0) {
-        jtilecol = 0;
-      }
-      printf("Setting up main channel %u port %u\n",
-             static_cast<unsigned int>(absChannelIndex),
-             static_cast<unsigned int>(jtilecol));
-      fflush(stdout);
-      udpSender.samplesPerFrame = 1025.0;
-      udpSender.udpSender = udpSenderSetup(outsize_idx_1);
-      if (udpSender.udpSender <= 0) {
-        rtErrorWithMessageID(b_emlrtRTEI.fName, b_emlrtRTEI.lineNo);
-      }
+    //  Set up main channel output
+    if (absChannelIndex < -2147483647) {
+      outsize_idx_1 = MIN_int32_T;
     } else {
+      outsize_idx_1 = absChannelIndex - 1;
+    }
+    if (outsize_idx_1 > 1073741823) {
+      outsize_idx_1 = MAX_int32_T;
+    } else if (outsize_idx_1 <= -1073741824) {
+      outsize_idx_1 = MIN_int32_T;
+    } else {
+      outsize_idx_1 <<= 1;
+    }
+    if (outsize_idx_1 > 2147463647) {
+      outsize_idx_1 = MAX_int32_T;
+    } else {
+      outsize_idx_1 += 20000;
+    }
+    jcol = absChannelIndex;
+    if (absChannelIndex < 0) {
+      jcol = 0;
+    }
+    ibtile = outsize_idx_1;
+    if (outsize_idx_1 < 0) {
+      ibtile = 0;
+    }
+    printf("Setting up main channel %u port %u\n",
+           static_cast<unsigned int>(jcol), static_cast<unsigned int>(ibtile));
+    fflush(stdout);
+    udpSender.samplesPerFrame = 1025.0;
+    udpSender.udpSender = udpSenderSetup(outsize_idx_1);
+    if (udpSender.udpSender <= 0) {
+      rtErrorWithMessageID(b_emlrtRTEI.fName, b_emlrtRTEI.lineNo);
+    }
+    if (channelsUsed[sizes_idx_1] > 0) {
       //  Set up secondary channel output
-      jtilecol = absChannelIndex;
+      jcol = absChannelIndex;
       if (absChannelIndex < 0) {
-        jtilecol = 0;
+        jcol = 0;
       }
       if (absChannelIndex < -2147483647) {
         outsize_idx_1 = MIN_int32_T;
@@ -209,7 +211,7 @@ UDPChannelSender *UDPChannelSender::init(coder::array<int, 2U> &channelsUsed)
         outsize_idx_1 = 0;
       }
       printf("Setting up secondary channel %u port %u\n",
-             static_cast<unsigned int>(jtilecol),
+             static_cast<unsigned int>(jcol),
              static_cast<unsigned int>(outsize_idx_1));
       fflush(stdout);
       udpSender.samplesPerFrame = 1025.0;
@@ -242,28 +244,29 @@ UDPChannelSender *UDPChannelSender::init(coder::array<int, 2U> &channelsUsed)
     }
     b__in.set_size(1, self->channelIndices.size(1));
     outsize_idx_1 = self->channelIndices.size(1);
-    for (jtilecol = 0; jtilecol < outsize_idx_1; jtilecol++) {
-      b__in[jtilecol] = self->channelIndices[jtilecol];
+    for (jcol = 0; jcol < outsize_idx_1; jcol++) {
+      b__in[jcol] = self->channelIndices[jcol];
     }
-    if (b_i + 1 > b__in.size(1)) {
-      rtDynamicBoundsError(b_i + 1, 1, b__in.size(1), &f_emlrtBCI);
+    if (sizes_idx_1 + 1 > b__in.size(1)) {
+      rtDynamicBoundsError(sizes_idx_1 + 1, 1, b__in.size(1), &f_emlrtBCI);
     }
-    b__in[b_i] = channelsUsed[b_i];
+    b__in[sizes_idx_1] = channelsUsed[sizes_idx_1];
     _in.set_size(1, b__in.size(1));
     outsize_idx_1 = b__in.size(0) * b__in.size(1) - 1;
-    for (jtilecol = 0; jtilecol <= outsize_idx_1; jtilecol++) {
-      _in[jtilecol] = b__in[jtilecol];
+    for (jcol = 0; jcol <= outsize_idx_1; jcol++) {
+      _in[jcol] = b__in[jcol];
     }
     coder::internal::validator_check_size(_in, b__in);
     self->channelIndices.set_size(1, b__in.size(1));
     outsize_idx_1 = b__in.size(1);
-    for (jtilecol = 0; jtilecol < outsize_idx_1; jtilecol++) {
-      self->channelIndices[jtilecol] = b__in[jtilecol];
+    for (jcol = 0; jcol < outsize_idx_1; jcol++) {
+      self->channelIndices[jcol] = b__in[jcol];
     }
-    if (b_i > b_channelSenders.size(1) - 1) {
-      rtDynamicBoundsError(b_i, 0, b_channelSenders.size(1) - 1, &g_emlrtBCI);
+    if (sizes_idx_1 > b_channelSenders.size(1) - 1) {
+      rtDynamicBoundsError(sizes_idx_1, 0, b_channelSenders.size(1) - 1,
+                           &g_emlrtBCI);
     }
-    b_channelSenders[b_i] = udpSender;
+    b_channelSenders[sizes_idx_1] = udpSender;
   }
   overflow = (b_channelSenders.size(1) == 1);
   if (overflow) {
@@ -286,9 +289,9 @@ UDPChannelSender *UDPChannelSender::init(coder::array<int, 2U> &channelsUsed)
     if (b_channelSenders.size(1) > 1) {
       outsize_idx_1 = b_channelSenders.size(1);
     }
-    absChannelIndex = b_channelSenders.size(1);
-    if (absChannelIndex >= outsize_idx_1) {
-      outsize_idx_1 = absChannelIndex;
+    ibtile = b_channelSenders.size(1);
+    if (ibtile >= outsize_idx_1) {
+      outsize_idx_1 = ibtile;
     }
     if (sizes_idx_1 > outsize_idx_1) {
       f_rtErrorWithMessageID(f_emlrtRTEI.fName, f_emlrtRTEI.lineNo);
@@ -309,13 +312,14 @@ UDPChannelSender *UDPChannelSender::init(coder::array<int, 2U> &channelsUsed)
         coder::check_forloop_overflow_error();
       }
       overflow = (b_channelSenders.size(1) > 2147483646);
-      for (jtilecol = 0; jtilecol < sizes_idx_1; jtilecol++) {
-        absChannelIndex = jtilecol * outsize_idx_1;
+      for (absChannelIndex = 0; absChannelIndex < sizes_idx_1;
+           absChannelIndex++) {
+        ibtile = absChannelIndex * outsize_idx_1;
         if (overflow) {
           coder::check_forloop_overflow_error();
         }
-        for (int b_i{0}; b_i < outsize_idx_1; b_i++) {
-          c__in[absChannelIndex + b_i] = b_channelSenders[b_i];
+        for (jcol = 0; jcol < outsize_idx_1; jcol++) {
+          c__in[ibtile + jcol] = b_channelSenders[jcol];
         }
       }
     }
@@ -340,7 +344,7 @@ void UDPChannelSender::sendChannelData(
   static rtBoundsCheckInfo e_emlrtBCI{
       1,                                                  // iFirst
       100,                                                // iLast
-      59,                                                 // lineNo
+      60,                                                 // lineNo
       72,                                                 // colNo
       "channelData",                                      // aName
       "UDPChannelSender/sendChannelData",                 // fName
@@ -350,7 +354,7 @@ void UDPChannelSender::sendChannelData(
   static rtBoundsCheckInfo f_emlrtBCI{
       -1,                                                 // iFirst
       -1,                                                 // iLast
-      58,                                                 // lineNo
+      59,                                                 // lineNo
       55,                                                 // colNo
       "self.channelSenders",                              // aName
       "UDPChannelSender/sendChannelData",                 // fName
@@ -360,7 +364,7 @@ void UDPChannelSender::sendChannelData(
   static rtBoundsCheckInfo g_emlrtBCI{
       -1,                                                 // iFirst
       -1,                                                 // iLast
-      57,                                                 // lineNo
+      58,                                                 // lineNo
       55,                                                 // colNo
       "self.channelIndices",                              // aName
       "UDPChannelSender/sendChannelData",                 // fName
