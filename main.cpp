@@ -22,7 +22,7 @@ int main(int argc, char ** argv)
   }
 
   for (int i=1; i<argc; i++) {
-    channelsUsed[i] = atoi(argv[i]);
+    channelsUsed[i-1] = atoi(argv[i]);
   }
 
   airspy_channelize(channelsUsed);
