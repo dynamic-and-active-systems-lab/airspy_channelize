@@ -5,7 +5,7 @@
 // File: UDPChannelSender.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 26-Feb-2023 11:45:56
+// C/C++ source code generated on  : 26-Feb-2023 12:01:14
 //
 
 // Include Files
@@ -179,7 +179,7 @@ UDPChannelSender *UDPChannelSender::init(coder::array<int, 2U> &channelsUsed)
     if (udpSender.udpSender <= 0) {
       rtErrorWithMessageID(b_emlrtRTEI.fName, b_emlrtRTEI.lineNo);
     }
-    if (channelsUsed[sizes_idx_1] > 0) {
+    if (channelsUsed[sizes_idx_1] < 0) {
       //  Set up secondary channel output
       jcol = absChannelIndex;
       if (absChannelIndex < 0) {
