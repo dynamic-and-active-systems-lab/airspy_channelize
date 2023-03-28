@@ -36,7 +36,9 @@ Temporary Items
 
 
 # Matlab Coder Generated Files
-codegen
+build_ros2_model.sh
+src
+msgdef
 airspy_channelize.prj
 
 # Other files
