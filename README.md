@@ -15,35 +15,38 @@ The development of this code was funded via [National Science Foundation grant n
 
 ## Setup
 ### Setup for running in Matlab
-After cloning this repo, the airspy_channelize.m function can be run directly in Matlab. No additional setup should be needed.
+After cloning this repo, the airspy_channelize.m function can be run directly in Matlab. You must first add the 'matlab-coder-utils/c-udp' to the matlab path using the Set Path dialog.
 ### Setup for building a compiled executable 
-The `airspy_channelize` function can be converted to an executable using Matlab Coder. In this way the channelizer will not require Matlab to run. The scripts to do the code generation are `airspy_channelize_codegen_script_***.m`. 
-#### Executable for macOS
-We provide two of these scripts. One (`airspy_channelize_codegen_script_exe_Mac.m`) can be used to generate the executable directly. We have tested this on macOS and it generates a executable that can be run in terminal. You will need to add the path to libmwnetworkdevice.dyld to your DYLD_LIBRARY_PATH environmental variable before running the program. This file can be found in MATLABROOT/bin/maci64. To write this as the DYLD_LIBRARY_PATH for all future zshell instances, open or create the .zshrc file in /Users/YOURUSERNAME/.zshrc and add 'export DYLD_LIBRARY_PATH=/Applications/MATLAB_R2022b.app/bin/maci64:/Applications/MATLAB_R2022b.app/sys/os/maci64' to the end of this file. 
-#### Executable for Linux
-When testing `airspy_channelize_codegen_script_exe.m` for executable generation on Linux though (Ubuntu 20.04), Matlab Coder failed. In order to generate an executable for Linux, additional steps are needed and listed below. The steps below will generate an executable and have been placed within the Matlab script `airspy_channelize_codegen_script_exe_Linux.m` but can also be manually run.
-1. After cloning this repo run `airspy_channelize_codegen_script_lib.m` in Matlab. This may take a long time to run. See the note below. 
-2. Coder will generate a `codegen` directory within the repo directory. Navigate to the `codegen/lib/airspy_channelize/` directory in a new terminal window and use the resulting make file (`airspy_channelize_rtw.mk`) to generate the static library (`*.a`) file. To do this, run `$ make -f airspy_channelize_rtw.mk` in terminal.
-3. We now need to package all of the dependencies to simplify the compiling that is about to come. Go back to Matlab be sure you are in the repo directory. Run the following in Matlab to package all the dependencies into a single .zip file called `portairspy_channelize.zip`.
-    - Run `>> load buildInfo.mat`
-   - Run `>> packNGo(buildInfo, 'packType','flat','filename','portairspy_channelize')`
-4. Move the `portairspy_channelize.zip` file to a new location on your system and unzip. 
-5. Unfortunately, we have found that two dependencies aren't included with the packNGo functionality and must now be copied manually into the unzipped directory. 
-    - Find the `libdl.so`  library symbolic link on your machine. For a typical install it should be in `/usr/lib/x86_64-linux-gnu`. Copy the symbolic link to the unzipped directory. 
-    - Find the `libiomp5.so` library in your Matlab root directory. For a typical install of Matlab R2022b it should be in `/<MATLAB_ROOT>/sys/os/glnxa64`. Copy `libiomp5.so` to the unzipped directory. 
-6. Open a terminal in the directory of the unzipped files and run `$ export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:<PATH TO THE UNZIPPED FILES>"`.
-7. In this terminal, run `gcc main.c *.a *.so -o airspy_channelize -lm`
-8. The executable should be generated. To run this on a linux machine `./` needs to precede the `airspy_channelize` commands listed below in Basic Operation. ie. `./airspy_channelize 192000 48`. IMPORTANT: On subsequent calls of the program or in other terminal windows, you'll need to re-run `$ export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:<PATH TO THE UNZIPPED FILES>"` prior to calling airspy_channelizer. 
+The `airspy_channelize` function can be converted to an executable using Matlab Coder. In this way the channelizer will not require Matlab to run. Steps to build:
 
-**Note:** Due to code generation restrictions within Matlab, each decimation factor for the channelizer required its own function. As such, the `airspy_channelize_codegen_script_***.m` may may take a long time to complete. If you only need a subset of the decimation factor provided in this repo, it is highly recommended to modify the `airspy_channelize.m` function to limit the number of decimation/channel options so that the function compiles faster. 
+* Run 'airspy_channelize_codegen_script.m' in Matlab. This will create the codegen directory of source code.
+* Run 'make -f matlab-coder-utils/Makefile PRODUCT_NAME=airspy_channelize' from the root airspy_channelize directory at the command prompt. This will create an 'airspy_channelize' executable.
 
 ## Basic Operation
 ### Starting the program
-When compiled to an executable two arguments are needed: raw sample rate (from the SDR) and the desired decimation factor. The raw sample rate must be a supported sample rate from the Airspy Mini after decimation by 8 from the airspy_decimate repo: 375 KSPS. This and the decimation factor for channelizer are left as inputs here, as we plan to support other sample rates and number of channels in the future. Supported decimation factors (number of channels) are currently 100 and 200. An example call in terminal to start this program would be 
+When compiled to an executable you can specified the channels you want output to udp on the command line. 
 
-`airspy_channelize 375000 100`
+The relationship of specified channels to udo port is as follows:
 
-This would setup the program for incoming data and 375 KSPS that will be decimated by 48 to a sample rate of 3750 samples per second. The output data will be served on local ports starting at 20000 and ending at one less than the number of channels (decimation factor). It is critical that this program is started starting the stream of incoming data, otherwise 'Connection refused' messages will appear after the next step. 
+If the channel specified is a positive value:
+* channel 1 is output on 20000
+* channel 2 is output on 20002
+* channel 3 is output on 20004
+
+If the channel specified is negative then the data is output on a secondary port as well as the main port. Example for secondary ports:
+* channel 1 is also output on 20001
+* channel 2 is also output on 20003
+* channel 3 is also output on 20005
+
+If no channel list is specified on the command line then all 100 channels are output on the main ports.
+
+Example command line usage:
+
+`airspy_channelize 1 -3`
+
+Results in the following ports being output:
+* channel 1 is output on 20000
+* channel 3 is output on 20004 and 2005
 
 ### Starting the incoming SDR data
 The data coming into the channelizer program should be served on local port 10000. For example, after starting the channelizer program the folling terminal commands should would be issued in separate terminal windows. 
