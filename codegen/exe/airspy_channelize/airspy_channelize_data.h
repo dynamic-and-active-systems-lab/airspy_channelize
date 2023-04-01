@@ -5,7 +5,7 @@
 // File: airspy_channelize_data.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 01-Apr-2023 16:45:43
+// C/C++ source code generated on  : 01-Apr-2023 16:55:28
 //
 
 #ifndef AIRSPY_CHANNELIZE_DATA_H

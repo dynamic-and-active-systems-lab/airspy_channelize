@@ -5,7 +5,7 @@
 // File: airspy_channelize.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 01-Apr-2023 16:45:43
+// C/C++ source code generated on  : 01-Apr-2023 16:55:28
 //
 
 // Include Files
@@ -126,9 +126,9 @@ void airspy_channelize(const coder::array<int, 2U> &channelsUsed)
   coder::datetime b_this;
   coder::dsp::Channelizer channelizer;
   coder::array<creal32_T, 2U> channelData;
-  coder::array<creal32_T, 1U> dataReceived;
   coder::array<creal32_T, 1U> varargin_1;
   coder::array<int, 2U> b_channelsUsed;
+  creal32_T dataReceived_data[2048];
   double startTimeStamp;
   double tocElapsedSubtract;
   unsigned long long totalSampsReceived;
@@ -158,7 +158,7 @@ void airspy_channelize(const coder::array<int, 2U> &channelsUsed)
   channelizer.matlabCodegenIsDeleted = false;
   //  The value for sampleFrameSize (2039) must exactly what csdr is sending per
   //  frame
-  udpReceiver.samplesPerFrame = 32768.0;
+  udpReceiver.samplesPerFrame = 2048.0;
   udpReceiver.udpReceiver = udpReceiverSetup(10000.0);
   if (udpReceiver.udpReceiver <= 0) {
     rtErrorWithMessageID(b_emlrtRTEI.fName, b_emlrtRTEI.lineNo);
@@ -178,19 +178,19 @@ void airspy_channelize(const coder::array<int, 2U> &channelsUsed)
   while (1) {
     double tocBasedElapseTime;
     unsigned long long b_qY;
-    udpReceiver.receive(dataReceived);
+    udpReceiver.receive(dataReceived_data, &loop_ub);
     if (totalSampsReceived == 0ULL) {
       b_this.init();
-      startTimeStamp = b_this.data.re / 1000.0 - 0.17066666666666666;
+      startTimeStamp = b_this.data.re / 1000.0 - 0.010666666666666666;
       //  At this point the difference between tic and toc for the first packet
       //  is arbitrary. Since we may have been sitting waiting for the first
       //  packet to come in. Because of this we need to be able to subtract out
       //  this waiting time from our elapsed time calcuations. We use the
       //  tocElapsedAdjust for this purpose.
-      tocElapsedSubtract = coder::toc() - 0.17066666666666666;
+      tocElapsedSubtract = coder::toc() - 0.010666666666666666;
     }
-    b_qY = totalSampsReceived + 32768ULL;
-    if (totalSampsReceived + 32768ULL < totalSampsReceived) {
+    b_qY = totalSampsReceived + 2048ULL;
+    if (totalSampsReceived + 2048ULL < totalSampsReceived) {
       b_qY = MAX_uint64_T;
     }
     totalSampsReceived = b_qY;
@@ -218,7 +218,7 @@ void airspy_channelize(const coder::array<int, 2U> &channelsUsed)
       sampsTransmitted = 0U;
     }
     //  Collect samples in FIFO until we have enough to channelize
-    dataBufferFIFO.write(dataReceived);
+    dataBufferFIFO.write(dataReceived_data, loop_ub);
     if ((dataBufferFIFO.pBuffer.WritePointer >= 0) &&
         (dataBufferFIFO.pBuffer.ReadPointer <
          dataBufferFIFO.pBuffer.WritePointer - MAX_int32_T)) {

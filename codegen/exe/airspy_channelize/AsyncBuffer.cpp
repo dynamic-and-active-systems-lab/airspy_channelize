@@ -5,7 +5,7 @@
 // File: AsyncBuffer.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 01-Apr-2023 16:45:43
+// C/C++ source code generated on  : 01-Apr-2023 16:55:28
 //
 
 // Include Files
@@ -489,13 +489,14 @@ void AsyncBuffer::write()
 }
 
 //
-// Arguments    : const ::coder::array<creal32_T, 1U> &in
+// Arguments    : const creal32_T in_data[]
+//                int in_size
 // Return Type  : void
 //
-void AsyncBuffer::write(const ::coder::array<creal32_T, 1U> &in)
+void AsyncBuffer::write(const creal32_T in_data[], int in_size)
 {
-  static const unsigned short inSize[8]{32768U, 1U, 1U, 1U, 1U, 1U, 1U, 1U};
-  static const unsigned short uv[8]{32768U, 1U, 1U, 1U, 1U, 1U, 1U, 1U};
+  static const short inSize[8]{2048, 1, 1, 1, 1, 1, 1, 1};
+  static const short iv[8]{2048, 1, 1, 1, 1, 1, 1, 1};
   internal::AsyncBuffercgHelper *obj;
   int i;
   boolean_T anyInputSizeChanged;
@@ -512,7 +513,7 @@ void AsyncBuffer::write(const ::coder::array<creal32_T, 1U> &in)
     }
     pBuffer.isInitialized = 1;
     for (i = 0; i < 8; i++) {
-      varSizes.f1[i] = inSize[i];
+      varSizes.f1[i] = static_cast<unsigned int>(inSize[i]);
     }
     pBuffer.inputVarSize[0] = varSizes;
     if ((pBuffer.NumChannels != -1) && (pBuffer.NumChannels != 1)) {
@@ -538,10 +539,10 @@ void AsyncBuffer::write(const ::coder::array<creal32_T, 1U> &in)
   i = 0;
   exitg1 = false;
   while ((!exitg1) && (i < 8)) {
-    if (obj->inputVarSize[0].f1[i] != uv[i]) {
+    if (obj->inputVarSize[0].f1[i] != static_cast<unsigned int>(iv[i])) {
       anyInputSizeChanged = true;
       for (i = 0; i < 8; i++) {
-        obj->inputVarSize[0].f1[i] = inSize[i];
+        obj->inputVarSize[0].f1[i] = static_cast<unsigned int>(inSize[i]);
       }
       exitg1 = true;
     } else {
@@ -552,7 +553,7 @@ void AsyncBuffer::write(const ::coder::array<creal32_T, 1U> &in)
       (pBuffer.NumChannels != 1)) {
     b_rtErrorWithMessageID(c_emlrtRTEI.fName, c_emlrtRTEI.lineNo);
   }
-  pBuffer.stepImpl(in);
+  pBuffer.stepImpl(in_data, in_size);
 }
 
 } // namespace dsp

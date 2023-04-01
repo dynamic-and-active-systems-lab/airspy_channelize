@@ -5,34 +5,31 @@
 // File: ComplexSingleSamplesUDPReceiver.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 01-Apr-2023 16:45:43
+// C/C++ source code generated on  : 01-Apr-2023 16:55:28
 //
 
 // Include Files
 #include "ComplexSingleSamplesUDPReceiver.h"
 #include "rt_nonfinite.h"
-#include "coder_array.h"
 #include "udp.h"
+#include <algorithm>
+#include <cstring>
 
 // Function Definitions
 //
-// Arguments    : coder::array<creal32_T, 1U> &complexData
+// Arguments    : creal32_T complexData_data[]
+//                int *complexData_size
 // Return Type  : void
 //
-void ComplexSingleSamplesUDPReceiver::receive(
-    coder::array<creal32_T, 1U> &complexData) const
+void ComplexSingleSamplesUDPReceiver::receive(creal32_T complexData_data[],
+                                              int *complexData_size) const
 {
-  coder::array<creal32_T, 2U> complexBuffer;
-  complexBuffer.set_size(1, 32768);
-  for (int i{0}; i < 32768; i++) {
-    complexBuffer[i].re = 0.0F;
-    complexBuffer[i].im = 0.0F;
-  }
-  udpReceiverReadComplex(udpReceiver, &complexBuffer[0], 32768.0);
-  complexData.set_size(32768);
-  for (int i{0}; i < 32768; i++) {
-    complexData[i] = complexBuffer[i];
-  }
+  creal32_T complexBuffer_data[2048];
+  std::memset(&complexBuffer_data[0], 0, 2048U * sizeof(creal32_T));
+  udpReceiverReadComplex(udpReceiver, &complexBuffer_data[0], 2048.0);
+  *complexData_size = 2048;
+  std::copy(&complexBuffer_data[0], &complexBuffer_data[2048],
+            &complexData_data[0]);
 }
 
 //

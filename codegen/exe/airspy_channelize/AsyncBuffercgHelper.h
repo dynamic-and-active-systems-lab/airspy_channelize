@@ -5,7 +5,7 @@
 // File: AsyncBuffercgHelper.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 01-Apr-2023 16:45:43
+// C/C++ source code generated on  : 01-Apr-2023 16:55:28
 //
 
 #ifndef ASYNCBUFFERCGHELPER_H
@@ -28,7 +28,7 @@ public:
                                     int numRowsCast,
                                     ::coder::array<creal32_T, 1U> &out,
                                     int *underrun, int *c);
-  int stepImpl(const ::coder::array<creal32_T, 1U> &in);
+  int stepImpl(const creal32_T in_data[], int in_size);
   void matlabCodegenDestructor();
   void release();
   void releaseWrapper();
