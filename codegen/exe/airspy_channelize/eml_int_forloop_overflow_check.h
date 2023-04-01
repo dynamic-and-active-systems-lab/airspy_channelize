@@ -1,10 +1,11 @@
 //
-// Prerelease License - for engineering feedback and testing purposes
-// only. Not for sale.
+// Academic License - for use in teaching, academic research, and meeting
+// course requirements at degree granting institutions only.  Not for
+// government, commercial, or other organizational use.
 // File: eml_int_forloop_overflow_check.h
 //
-// MATLAB Coder version            : 5.6
-// C/C++ source code generated on  : 28-Mar-2023 15:24:09
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 01-Apr-2023 15:42:43
 //
 
 #ifndef EML_INT_FORLOOP_OVERFLOW_CHECK_H
@@ -17,9 +18,11 @@
 
 // Function Declarations
 namespace coder {
+void b_check_forloop_overflow_error();
+
 void check_forloop_overflow_error();
 
-}
+} // namespace coder
 
 #endif
 //

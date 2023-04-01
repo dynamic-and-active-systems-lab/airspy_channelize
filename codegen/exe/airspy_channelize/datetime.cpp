@@ -1,10 +1,11 @@
 //
-// Prerelease License - for engineering feedback and testing purposes
-// only. Not for sale.
+// Academic License - for use in teaching, academic research, and meeting
+// course requirements at degree granting institutions only.  Not for
+// government, commercial, or other organizational use.
 // File: datetime.cpp
 //
-// MATLAB Coder version            : 5.6
-// C/C++ source code generated on  : 28-Mar-2023 15:24:09
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 01-Apr-2023 15:42:43
 //
 
 // Include Files
@@ -22,7 +23,7 @@
 #include <string>
 
 // Function Declarations
-static void f_rtErrorWithMessageID(const char *aFcnName, int aLineNum);
+static void i_rtErrorWithMessageID(const char *aFcnName, int aLineNum);
 
 // Function Definitions
 //
@@ -30,7 +31,7 @@ static void f_rtErrorWithMessageID(const char *aFcnName, int aLineNum);
 //                int aLineNum
 // Return Type  : void
 //
-static void f_rtErrorWithMessageID(const char *aFcnName, int aLineNum)
+static void i_rtErrorWithMessageID(const char *aFcnName, int aLineNum)
 {
   std::string errMsg;
   std::stringstream outStream;
@@ -54,7 +55,7 @@ static void f_rtErrorWithMessageID(const char *aFcnName, int aLineNum)
 namespace coder {
 void datetime::init()
 {
-  static rtRunTimeErrorInfo i_emlrtRTEI{
+  static rtRunTimeErrorInfo p_emlrtRTEI{
       1,                  // lineNo
       "createFromDateVec" // fName
   };
@@ -67,8 +68,8 @@ void datetime::init()
   double fracSecs;
   double shi;
   boolean_T expl_temp;
-  check = internal::b_time::getLocalTime(b_second, c_tm_min, c_tm_hour, shi,
-                                         c_tm_mon, c_tm_year, expl_temp);
+  internal::time::getLocalTime(&check, &b_second, &c_tm_min, &c_tm_hour, &shi,
+                               &c_tm_mon, &c_tm_year, &expl_temp);
   fracSecs = check / 1.0E+6;
   check =
       (((((c_tm_year + c_tm_mon) + shi) + c_tm_hour) + c_tm_min) + b_second) +
@@ -76,14 +77,13 @@ void datetime::init()
   if ((!std::isinf(check)) && (!std::isnan(check))) {
     creal_T ahi;
     double wholeSecsFromMillis;
-    if ((!(std::ceil(c_tm_year) == c_tm_year)) ||
-        (!(std::ceil(c_tm_mon) == c_tm_mon)) || (!(std::ceil(shi) == shi)) ||
-        (!(std::ceil(c_tm_hour) == c_tm_hour)) ||
-        (!(std::ceil(c_tm_min) == c_tm_min))) {
-      f_rtErrorWithMessageID(i_emlrtRTEI.fName, i_emlrtRTEI.lineNo);
+    if ((!(c_tm_year == c_tm_year)) || (!(c_tm_mon == c_tm_mon)) ||
+        (!(shi == shi)) || (!(c_tm_hour == c_tm_hour)) ||
+        (!(c_tm_min == c_tm_min))) {
+      i_rtErrorWithMessageID(p_emlrtRTEI.fName, p_emlrtRTEI.lineNo);
     }
-    if (std::ceil(b_second) != b_second) {
-      f_rtErrorWithMessageID(i_emlrtRTEI.fName, i_emlrtRTEI.lineNo);
+    if (b_second != b_second) {
+      i_rtErrorWithMessageID(p_emlrtRTEI.fName, p_emlrtRTEI.lineNo);
     }
     if ((c_tm_mon < 1.0) || (c_tm_mon > 12.0)) {
       wholeSecsFromMillis = std::floor((c_tm_mon - 1.0) / 12.0);

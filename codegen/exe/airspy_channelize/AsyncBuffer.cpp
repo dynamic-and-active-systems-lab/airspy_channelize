@@ -1,10 +1,11 @@
 //
-// Prerelease License - for engineering feedback and testing purposes
-// only. Not for sale.
+// Academic License - for use in teaching, academic research, and meeting
+// course requirements at degree granting institutions only.  Not for
+// government, commercial, or other organizational use.
 // File: AsyncBuffer.cpp
 //
-// MATLAB Coder version            : 5.6
-// C/C++ source code generated on  : 28-Mar-2023 15:24:09
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 01-Apr-2023 15:42:43
 //
 
 // Include Files
@@ -152,11 +153,11 @@ AsyncBuffer::~AsyncBuffer()
 //
 void AsyncBuffer::read()
 {
-  static rtRunTimeErrorInfo i_emlrtRTEI{
+  static rtRunTimeErrorInfo p_emlrtRTEI{
       103,                 // lineNo
       "AsyncBuffercg/read" // fName
   };
-  static rtRunTimeErrorInfo j_emlrtRTEI{
+  static rtRunTimeErrorInfo q_emlrtRTEI{
       14,                   // lineNo
       "validatenonnegative" // fName
   };
@@ -199,37 +200,37 @@ void AsyncBuffer::read()
     numRows = 204800;
   }
   if (numRows < 0) {
-    c_rtErrorWithMessageID("number of rows", j_emlrtRTEI.fName,
-                           j_emlrtRTEI.lineNo);
+    c_rtErrorWithMessageID("number of rows", q_emlrtRTEI.fName,
+                           q_emlrtRTEI.lineNo);
   }
   if (numRows > 204800) {
-    d_rtErrorWithMessageID(i_emlrtRTEI.fName, i_emlrtRTEI.lineNo);
+    d_rtErrorWithMessageID(p_emlrtRTEI.fName, p_emlrtRTEI.lineNo);
   }
   if (!pBuffer.AsyncBuffercgHelper_isInitialized) {
     e_rtErrorWithMessageID(d_emlrtRTEI.fName, d_emlrtRTEI.lineNo);
   }
-  underrun = internal::AsyncBuffercgHelper::ReadSamplesFromBuffer(
-      pBuffer, numRows, out, c);
+  internal::AsyncBuffercgHelper::ReadSamplesFromBuffer(&pBuffer, numRows, out,
+                                                       &underrun, &c);
   b_out.set_size(out.size(0));
   numRows = out.size(0);
   for (q0_tmp = 0; q0_tmp < numRows; q0_tmp++) {
     b_out[q0_tmp] = out[q0_tmp];
   }
-  numRows = pBuffer.CumulativeUnderrun;
-  if ((numRows < 0) && (underrun < MIN_int32_T - numRows)) {
-    qY = MIN_int32_T;
-  } else if ((numRows > 0) && (underrun > MAX_int32_T - numRows)) {
-    qY = MAX_int32_T;
-  } else {
-    qY = numRows + underrun;
-  }
-  pBuffer.CumulativeUnderrun = qY;
   numRows = pBuffer.WritePointer;
   if (numRows < -2147483647) {
     qY = MIN_int32_T;
   } else {
     qY = numRows - 1;
   }
+  numRows = pBuffer.CumulativeUnderrun;
+  if ((numRows < 0) && (underrun < MIN_int32_T - numRows)) {
+    numRows = MIN_int32_T;
+  } else if ((numRows > 0) && (underrun > MAX_int32_T - numRows)) {
+    numRows = MAX_int32_T;
+  } else {
+    numRows += underrun;
+  }
+  pBuffer.CumulativeUnderrun = numRows;
   if (underrun != 0) {
     pBuffer.ReadPointer = qY;
   } else {
@@ -290,11 +291,11 @@ void AsyncBuffer::read(::coder::array<creal32_T, 1U> &out)
       yk++;
       y[k - 1] = yk;
     }
-    yk = readIdx.size(1);
+    k = readIdx.size(1);
     readIdx.set_size(1, readIdx.size(1) + y.size(1));
     n = y.size(1);
-    for (k = 0; k < n; k++) {
-      readIdx[k + yk] = y[k];
+    for (yk = 0; yk < n; yk++) {
+      readIdx[yk + k] = y[yk];
     }
     if (rPtr <= wPtr) {
       underrun = (rPtr - wPtr) + 102400;
@@ -309,14 +310,15 @@ void AsyncBuffer::read(::coder::array<creal32_T, 1U> &out)
   }
   b_out.set_size(readIdx.size(1));
   n = readIdx.size(1);
-  for (yk = 0; yk < n; yk++) {
-    boolean_T b;
-    b = ((readIdx[yk] < 1) || (readIdx[yk] > 204801));
-    if (b) {
-      rtDynamicBoundsError(readIdx[yk], 1, 204801, d_emlrtBCI);
+  for (k = 0; k < n; k++) {
+    if ((readIdx[k] < 1) || (readIdx[k] > 204801)) {
+      rtDynamicBoundsError(readIdx[k], 1, 204801, &d_emlrtBCI);
     }
-    b_out[yk].re = obj->Cache[readIdx[yk] - 1].re;
-    b_out[yk].im = obj->Cache[readIdx[yk] - 1].im;
+    b_out[k].re = obj->Cache[readIdx[k] - 1].re;
+    if ((readIdx[k] < 1) || (readIdx[k] > 204801)) {
+      rtDynamicBoundsError(readIdx[k], 1, 204801, &d_emlrtBCI);
+    }
+    b_out[k].im = obj->Cache[readIdx[k] - 1].im;
   }
   if (underrun != 0) {
     if (102401 - underrun > 102400) {
@@ -324,19 +326,20 @@ void AsyncBuffer::read(::coder::array<creal32_T, 1U> &out)
       yk = -1;
     } else {
       if ((102401 - underrun < 1) || (102401 - underrun > readIdx.size(1))) {
-        rtDynamicBoundsError(102401 - underrun, 1, readIdx.size(1), c_emlrtBCI);
+        rtDynamicBoundsError(102401 - underrun, 1, readIdx.size(1),
+                             &c_emlrtBCI);
       }
       k = 102399 - underrun;
       if (readIdx.size(1) < 102400) {
-        rtDynamicBoundsError(102400, 1, readIdx.size(1), b_emlrtBCI);
+        rtDynamicBoundsError(102400, 1, readIdx.size(1), &b_emlrtBCI);
       }
       yk = 102399;
     }
     if (underrun < 0) {
-      rtNonNegativeError(static_cast<double>(underrun), emlrtDCI);
+      rtNonNegativeError(static_cast<double>(underrun), &emlrtDCI);
     }
-    yk -= k;
-    rtSubAssignSizeCheck(&yk, underrun, emlrtECI);
+    n = yk - k;
+    rtSubAssignSizeCheck(&n, &underrun, &emlrtECI);
     for (yk = 0; yk < underrun; yk++) {
       n = (k + yk) + 1;
       b_out[n].re = 0.0F;
@@ -348,8 +351,14 @@ void AsyncBuffer::read(::coder::array<creal32_T, 1U> &out)
   }
   out.set_size(b_out.size(0));
   n = b_out.size(0);
-  for (yk = 0; yk < n; yk++) {
-    out[yk] = b_out[yk];
+  for (k = 0; k < n; k++) {
+    out[k] = b_out[k];
+  }
+  n = pBuffer.WritePointer;
+  if (n < -2147483647) {
+    yk = MIN_int32_T;
+  } else {
+    yk = n - 1;
   }
   n = pBuffer.CumulativeUnderrun;
   if ((n < 0) && (underrun < MIN_int32_T - n)) {
@@ -360,14 +369,8 @@ void AsyncBuffer::read(::coder::array<creal32_T, 1U> &out)
     n += underrun;
   }
   pBuffer.CumulativeUnderrun = n;
-  n = pBuffer.WritePointer;
-  if (n < -2147483647) {
-    n = MIN_int32_T;
-  } else {
-    n--;
-  }
   if (underrun != 0) {
-    pBuffer.ReadPointer = n;
+    pBuffer.ReadPointer = yk;
   } else {
     pBuffer.ReadPointer = c;
   }
@@ -455,7 +458,7 @@ void AsyncBuffer::write()
   i = bc.size(1);
   for (int b_i{0}; b_i < i; b_i++) {
     if ((bc[b_i] < 1) || (bc[b_i] > 204801)) {
-      rtDynamicBoundsError(bc[b_i], 1, 204801, emlrtBCI);
+      rtDynamicBoundsError(bc[b_i], 1, 204801, &emlrtBCI);
     }
     r[b_i] = bc[b_i];
   }
@@ -494,24 +497,23 @@ void AsyncBuffer::write(const creal32_T in_data[], int in_size)
 {
   static const short inSize[8]{2039, 1, 1, 1, 1, 1, 1, 1};
   static const short iv[8]{2039, 1, 1, 1, 1, 1, 1, 1};
-  static const short iv1[8]{2039, 1, 1, 1, 1, 1, 1, 1};
   internal::AsyncBuffercgHelper *obj;
   int i;
   boolean_T anyInputSizeChanged;
   boolean_T exitg1;
   obj = &pBuffer;
   if (pBuffer.isInitialized == 2) {
-    rtErrorWithMessageID("step", g_emlrtRTEI.fName, g_emlrtRTEI.lineNo);
+    rtErrorWithMessageID("step", m_emlrtRTEI.fName, m_emlrtRTEI.lineNo);
   }
   if (pBuffer.isInitialized != 1) {
     cell_wrap_3 varSizes;
     pBuffer.isSetupComplete = false;
     if (pBuffer.isInitialized != 0) {
-      b_rtErrorWithMessageID("setup", h_emlrtRTEI.fName, h_emlrtRTEI.lineNo);
+      b_rtErrorWithMessageID("setup", n_emlrtRTEI.fName, n_emlrtRTEI.lineNo);
     }
     pBuffer.isInitialized = 1;
     for (i = 0; i < 8; i++) {
-      varSizes.f1[i] = static_cast<unsigned int>(iv1[i]);
+      varSizes.f1[i] = static_cast<unsigned int>(inSize[i]);
     }
     pBuffer.inputVarSize[0] = varSizes;
     if ((pBuffer.NumChannels != -1) && (pBuffer.NumChannels != 1)) {
