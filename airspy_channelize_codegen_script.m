@@ -7,12 +7,15 @@
 
 %% Create configuration object of class 'coder.EmbeddedCodeConfig'.
 cfg = coder.config('exe','ecoder',true);
+cfg.HardwareImplementation.ProdEqTarget = false;
 cfg.TargetLang = 'C++';
 cfg.GenCodeOnly = true;
 cfg.GenerateExampleMain = 'DoNotGenerate';
+cfg.GenerateMakefile = false;
 cfg.GenerateReport = true;
 cfg.MaxIdLength = 1024;
 cfg.ReportPotentialDifferences = false;
+cfg.TargetLangStandard = 'C++11 (ISO)';
 cfg.RuntimeChecks = true;
 
 %% Define argument types for entry-point 'airspy_channelize'.
