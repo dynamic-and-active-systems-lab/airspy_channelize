@@ -5,7 +5,7 @@
 // File: AsyncBuffer.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 01-Apr-2023 15:58:05
+// C/C++ source code generated on  : 01-Apr-2023 16:45:43
 //
 
 // Include Files
@@ -489,14 +489,13 @@ void AsyncBuffer::write()
 }
 
 //
-// Arguments    : const creal32_T in_data[]
-//                int in_size
+// Arguments    : const ::coder::array<creal32_T, 1U> &in
 // Return Type  : void
 //
-void AsyncBuffer::write(const creal32_T in_data[], int in_size)
+void AsyncBuffer::write(const ::coder::array<creal32_T, 1U> &in)
 {
-  static const short inSize[8]{2039, 1, 1, 1, 1, 1, 1, 1};
-  static const short iv[8]{2039, 1, 1, 1, 1, 1, 1, 1};
+  static const unsigned short inSize[8]{32768U, 1U, 1U, 1U, 1U, 1U, 1U, 1U};
+  static const unsigned short uv[8]{32768U, 1U, 1U, 1U, 1U, 1U, 1U, 1U};
   internal::AsyncBuffercgHelper *obj;
   int i;
   boolean_T anyInputSizeChanged;
@@ -513,7 +512,7 @@ void AsyncBuffer::write(const creal32_T in_data[], int in_size)
     }
     pBuffer.isInitialized = 1;
     for (i = 0; i < 8; i++) {
-      varSizes.f1[i] = static_cast<unsigned int>(inSize[i]);
+      varSizes.f1[i] = inSize[i];
     }
     pBuffer.inputVarSize[0] = varSizes;
     if ((pBuffer.NumChannels != -1) && (pBuffer.NumChannels != 1)) {
@@ -539,10 +538,10 @@ void AsyncBuffer::write(const creal32_T in_data[], int in_size)
   i = 0;
   exitg1 = false;
   while ((!exitg1) && (i < 8)) {
-    if (obj->inputVarSize[0].f1[i] != static_cast<unsigned int>(iv[i])) {
+    if (obj->inputVarSize[0].f1[i] != uv[i]) {
       anyInputSizeChanged = true;
       for (i = 0; i < 8; i++) {
-        obj->inputVarSize[0].f1[i] = static_cast<unsigned int>(inSize[i]);
+        obj->inputVarSize[0].f1[i] = inSize[i];
       }
       exitg1 = true;
     } else {
@@ -553,7 +552,7 @@ void AsyncBuffer::write(const creal32_T in_data[], int in_size)
       (pBuffer.NumChannels != 1)) {
     b_rtErrorWithMessageID(c_emlrtRTEI.fName, c_emlrtRTEI.lineNo);
   }
-  pBuffer.stepImpl(in_data, in_size);
+  pBuffer.stepImpl(in);
 }
 
 } // namespace dsp

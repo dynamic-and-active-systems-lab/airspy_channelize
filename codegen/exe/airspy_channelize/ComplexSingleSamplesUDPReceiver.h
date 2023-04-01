@@ -5,7 +5,7 @@
 // File: ComplexSingleSamplesUDPReceiver.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 01-Apr-2023 15:58:05
+// C/C++ source code generated on  : 01-Apr-2023 16:45:43
 //
 
 #ifndef COMPLEXSINGLESAMPLESUDPRECEIVER_H
@@ -13,13 +13,14 @@
 
 // Include Files
 #include "rtwtypes.h"
+#include "coder_array.h"
 #include <cstddef>
 #include <cstdlib>
 
 // Type Definitions
 class ComplexSingleSamplesUDPReceiver {
 public:
-  void receive(creal32_T complexData_data[], int *complexData_size) const;
+  void receive(coder::array<creal32_T, 1U> &complexData) const;
   int udpReceiver;
   double samplesPerFrame;
 };

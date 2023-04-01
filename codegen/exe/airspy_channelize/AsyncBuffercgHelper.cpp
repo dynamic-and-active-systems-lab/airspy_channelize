@@ -5,7 +5,7 @@
 // File: AsyncBuffercgHelper.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 01-Apr-2023 15:58:05
+// C/C++ source code generated on  : 01-Apr-2023 16:45:43
 //
 
 // Include Files
@@ -215,11 +215,10 @@ AsyncBuffercgHelper::~AsyncBuffercgHelper()
 }
 
 //
-// Arguments    : const creal32_T in_data[]
-//                int in_size
+// Arguments    : const ::coder::array<creal32_T, 1U> &in
 // Return Type  : int
 //
-int AsyncBuffercgHelper::stepImpl(const creal32_T in_data[], int in_size)
+int AsyncBuffercgHelper::stepImpl(const ::coder::array<creal32_T, 1U> &in)
 {
   static rtEqualityCheckInfo
       b_emlrtECI{
@@ -246,9 +245,9 @@ int AsyncBuffercgHelper::stepImpl(const creal32_T in_data[], int in_size)
   if ((wPtr < 1) || (wPtr > 204801)) {
     rtErrorWithMessageID(b_emlrtRTEI.fName, b_emlrtRTEI.lineNo);
   }
-  c = wPtr + 2038;
-  if (wPtr + 2038 > 204801) {
-    c = wPtr - 202763;
+  c = wPtr + 32767;
+  if (wPtr + 32767 > 204801) {
+    c = wPtr - 172034;
     n = 204802 - wPtr;
     bc.set_size(1, 204802 - wPtr);
     bc[0] = wPtr;
@@ -257,7 +256,7 @@ int AsyncBuffercgHelper::stepImpl(const creal32_T in_data[], int in_size)
       yk++;
       bc[k - 1] = yk;
     }
-    y.set_size(1, wPtr - 202763);
+    y.set_size(1, wPtr - 172034);
     y[0] = 1;
     yk = 1;
     for (int k{2}; k <= c; k++) {
@@ -271,14 +270,14 @@ int AsyncBuffercgHelper::stepImpl(const creal32_T in_data[], int in_size)
       bc[k + yk] = y[k];
     }
     if (wPtr <= rPtr) {
-      overrun = (wPtr - rPtr) + 2039;
-    } else if (rPtr <= wPtr - 202763) {
-      if ((wPtr - 202763 >= 0) && (rPtr < wPtr + 2147280886)) {
+      overrun = (wPtr - rPtr) + 32768;
+    } else if (rPtr <= wPtr - 172034) {
+      if ((wPtr - 172034 >= 0) && (rPtr < wPtr + 2147311615)) {
         n = MAX_int32_T;
-      } else if ((wPtr - 202763 < 0) && (rPtr > wPtr + 2147280885)) {
+      } else if ((wPtr - 172034 < 0) && (rPtr > wPtr + 2147311614)) {
         n = MIN_int32_T;
       } else {
-        n = (wPtr - rPtr) - 202763;
+        n = (wPtr - rPtr) - 172034;
       }
       if (n > 2147483646) {
         overrun = MAX_int32_T;
@@ -287,9 +286,9 @@ int AsyncBuffercgHelper::stepImpl(const creal32_T in_data[], int in_size)
       }
     }
   } else {
-    eml_integer_colon_dispatcher(wPtr, wPtr + 2038, bc);
-    if ((wPtr <= rPtr) && (rPtr <= wPtr + 2038)) {
-      overrun = (wPtr - rPtr) + 2039;
+    eml_integer_colon_dispatcher(wPtr, wPtr + 32767, bc);
+    if ((wPtr <= rPtr) && (rPtr <= wPtr + 32767)) {
+      overrun = (wPtr - rPtr) + 32768;
     }
   }
   r.set_size(bc.size(1));
@@ -300,9 +299,10 @@ int AsyncBuffercgHelper::stepImpl(const creal32_T in_data[], int in_size)
     }
     r[yk] = bc[yk] - 1;
   }
-  rtSubAssignSizeCheck(r.size(), &in_size, &b_emlrtECI);
-  for (yk = 0; yk < 2039; yk++) {
-    Cache[r[yk]] = in_data[yk];
+  rtSubAssignSizeCheck(r.size(), ((::coder::array<creal32_T, 1U> *)&in)->size(),
+                       &b_emlrtECI);
+  for (yk = 0; yk < 32768; yk++) {
+    Cache[r[yk]] = in[yk];
   }
   if (c + 1 > 204801) {
     wPtr = 1;
