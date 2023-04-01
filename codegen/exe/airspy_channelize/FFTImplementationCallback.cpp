@@ -1,10 +1,11 @@
 //
-// Prerelease License - for engineering feedback and testing purposes
-// only. Not for sale.
+// Academic License - for use in teaching, academic research, and meeting
+// course requirements at degree granting institutions only.  Not for
+// government, commercial, or other organizational use.
 // File: FFTImplementationCallback.cpp
 //
-// MATLAB Coder version            : 5.6
-// C/C++ source code generated on  : 28-Mar-2023 15:24:09
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 01-Apr-2023 15:42:43
 //
 
 // Include Files
@@ -104,7 +105,7 @@ void FFTImplementationCallback::dobluesteinfft(
                                   },
                                   {
                                       1.0F, // re
-                                      0.0F  // im
+                                      -0.0F // im
                                   },
                                   {
                                       0.278991073F, // re
@@ -184,7 +185,7 @@ void FFTImplementationCallback::dobluesteinfft(
                                   },
                                   {
                                       1.0F, // re
-                                      0.0F  // im
+                                      -0.0F // im
                                   },
                                   {
                                       -0.827080607F, // re
@@ -264,7 +265,7 @@ void FFTImplementationCallback::dobluesteinfft(
                                   },
                                   {
                                       1.0F, // re
-                                      0.0F  // im
+                                      -0.0F // im
                                   },
                                   {
                                       -0.790154934F, // re
@@ -344,7 +345,7 @@ void FFTImplementationCallback::dobluesteinfft(
                                   },
                                   {
                                       1.0F, // re
-                                      0.0F  // im
+                                      -0.0F // im
                                   },
                                   {
                                       0.338738054F, // re
@@ -504,7 +505,7 @@ void FFTImplementationCallback::dobluesteinfft(
                                   },
                                   {
                                       1.0F, // re
-                                      0.0F  // im
+                                      -0.0F // im
                                   },
                                   {
                                       0.278991073F, // re
@@ -584,7 +585,7 @@ void FFTImplementationCallback::dobluesteinfft(
                                   },
                                   {
                                       1.0F, // re
-                                      0.0F  // im
+                                      -0.0F // im
                                   },
                                   {
                                       -0.827080607F, // re
@@ -664,7 +665,7 @@ void FFTImplementationCallback::dobluesteinfft(
                                   },
                                   {
                                       1.0F, // re
-                                      0.0F  // im
+                                      -0.0F // im
                                   },
                                   {
                                       -0.790154934F, // re
@@ -744,7 +745,7 @@ void FFTImplementationCallback::dobluesteinfft(
                                   },
                                   {
                                       1.0F, // re
-                                      0.0F  // im
+                                      -0.0F // im
                                   },
                                   {
                                       0.338738054F, // re
@@ -919,39 +920,37 @@ void FFTImplementationCallback::dobluesteinfft(
       0.0735645667F, 0.0490676761F, 0.024541229F,  0.0F};
   creal32_T fv[256];
   creal32_T fy[256];
-  float re_tmp;
+  float im;
   float temp_im;
   float temp_re;
   float temp_re_tmp;
   float twid_im;
   float twid_re;
+  int b_temp_re_tmp;
   int i;
-  int iDelta;
-  int iDelta2;
   int iheight;
   int ihi;
+  int istart;
+  int j;
   int ju;
   int k;
-  int temp_re_tmp_tmp;
-  int ub_loop;
   int xoff;
   boolean_T tst;
-  y.set_size(100, x.size(1));
-  ub_loop = x.size(1) - 1;
+  y.set_size(100, 1024);
 #pragma omp parallel for num_threads(omp_get_max_threads()) private(           \
-    xoff, k, temp_im, ju, temp_re, twid_re, twid_im, fy, i, tst, iDelta,       \
-    temp_re_tmp, re_tmp, iDelta2, iheight, ihi, temp_re_tmp_tmp, fv)
+    xoff, k, ju, temp_im, im, temp_re, twid_re, fy, i, tst, temp_re_tmp,       \
+    iheight, istart, b_temp_re_tmp, j, twid_im, ihi, fv)
 
-  for (int chan = 0; chan <= ub_loop; chan++) {
+  for (int chan = 0; chan < 1024; chan++) {
     xoff = chan * 100;
     for (k = 0; k < 100; k++) {
-      temp_im = wwc[k + 99].re;
       ju = xoff + k;
-      temp_re = x[ju].im;
+      temp_im = x[ju].re;
+      im = x[ju].im;
+      temp_re = wwc[k + 99].re;
       twid_re = wwc[k + 99].im;
-      twid_im = x[ju].re;
-      y[k + 100 * chan].re = temp_im * twid_im + twid_re * temp_re;
-      y[k + 100 * chan].im = temp_im * temp_re - twid_re * twid_im;
+      y[k + 100 * chan].re = temp_re * temp_im + twid_re * im;
+      y[k + 100 * chan].im = temp_re * im - twid_re * temp_im;
     }
     std::memset(&fy[0], 0, 256U * sizeof(creal32_T));
     xoff = 0;
@@ -970,52 +969,52 @@ void FFTImplementationCallback::dobluesteinfft(
     fy[xoff] = y[100 * chan + 99];
     for (i = 0; i <= 254; i += 2) {
       temp_re_tmp = fy[i + 1].re;
-      temp_re = fy[i + 1].im;
-      re_tmp = fy[i].re;
-      twid_re = fy[i].im;
-      fy[i + 1].re = re_tmp - temp_re_tmp;
-      fy[i + 1].im = twid_re - temp_re;
-      fy[i].re = re_tmp + temp_re_tmp;
-      fy[i].im = twid_re + temp_re;
+      im = fy[i + 1].im;
+      twid_re = fy[i].re;
+      temp_im = fy[i].im;
+      fy[i + 1].re = twid_re - temp_re_tmp;
+      fy[i + 1].im = temp_im - im;
+      fy[i].re = twid_re + temp_re_tmp;
+      fy[i].im = temp_im + im;
     }
-    iDelta = 2;
-    iDelta2 = 4;
+    xoff = 2;
+    ju = 4;
     k = 64;
     iheight = 253;
     while (k > 0) {
-      for (i = 0; i < iheight; i += iDelta2) {
-        xoff = i + iDelta;
-        temp_re = fy[xoff].re;
-        temp_im = fy[xoff].im;
-        fy[xoff].re = fy[i].re - temp_re;
-        fy[xoff].im = fy[i].im - temp_im;
+      for (i = 0; i < iheight; i += ju) {
+        b_temp_re_tmp = i + xoff;
+        temp_re = fy[b_temp_re_tmp].re;
+        temp_im = fy[b_temp_re_tmp].im;
+        fy[b_temp_re_tmp].re = fy[i].re - temp_re;
+        fy[b_temp_re_tmp].im = fy[i].im - temp_im;
         fy[i].re += temp_re;
         fy[i].im += temp_im;
       }
-      xoff = 1;
-      for (ju = k; ju < 128; ju += k) {
-        twid_re = b_fv[ju];
-        twid_im = fv1[ju];
-        i = xoff;
-        ihi = xoff + iheight;
+      istart = 1;
+      for (j = k; j < 128; j += k) {
+        twid_re = b_fv[j];
+        twid_im = fv1[j];
+        i = istart;
+        ihi = istart + iheight;
         while (i < ihi) {
-          temp_re_tmp_tmp = i + iDelta;
-          temp_re_tmp = fy[temp_re_tmp_tmp].im;
-          temp_im = fy[temp_re_tmp_tmp].re;
-          temp_re = twid_re * temp_im - twid_im * temp_re_tmp;
-          temp_im = twid_re * temp_re_tmp + twid_im * temp_im;
-          fy[temp_re_tmp_tmp].re = fy[i].re - temp_re;
-          fy[temp_re_tmp_tmp].im = fy[i].im - temp_im;
+          b_temp_re_tmp = i + xoff;
+          temp_re_tmp = fy[b_temp_re_tmp].im;
+          im = fy[b_temp_re_tmp].re;
+          temp_re = twid_re * im - twid_im * temp_re_tmp;
+          temp_im = twid_re * temp_re_tmp + twid_im * im;
+          fy[b_temp_re_tmp].re = fy[i].re - temp_re;
+          fy[b_temp_re_tmp].im = fy[i].im - temp_im;
           fy[i].re += temp_re;
           fy[i].im += temp_im;
-          i += iDelta2;
+          i += ju;
         }
-        xoff++;
+        istart++;
       }
       k /= 2;
-      iDelta = iDelta2;
-      iDelta2 += iDelta2;
-      iheight -= iDelta;
+      xoff = ju;
+      ju += ju;
+      iheight -= xoff;
     }
     std::memset(&fv[0], 0, 256U * sizeof(creal32_T));
     xoff = 0;
@@ -1034,60 +1033,60 @@ void FFTImplementationCallback::dobluesteinfft(
     fv[xoff] = wwc[198];
     for (i = 0; i <= 254; i += 2) {
       temp_re_tmp = fv[i + 1].re;
-      temp_re = fv[i + 1].im;
-      re_tmp = fv[i].re;
-      twid_re = fv[i].im;
-      fv[i + 1].re = re_tmp - temp_re_tmp;
-      fv[i + 1].im = twid_re - temp_re;
-      fv[i].re = re_tmp + temp_re_tmp;
-      fv[i].im = twid_re + temp_re;
+      im = fv[i + 1].im;
+      twid_re = fv[i].re;
+      temp_im = fv[i].im;
+      fv[i + 1].re = twid_re - temp_re_tmp;
+      fv[i + 1].im = temp_im - im;
+      fv[i].re = twid_re + temp_re_tmp;
+      fv[i].im = temp_im + im;
     }
-    iDelta = 2;
-    iDelta2 = 4;
+    xoff = 2;
+    ju = 4;
     k = 64;
     iheight = 253;
     while (k > 0) {
-      for (i = 0; i < iheight; i += iDelta2) {
-        xoff = i + iDelta;
-        temp_re = fv[xoff].re;
-        temp_im = fv[xoff].im;
-        fv[xoff].re = fv[i].re - temp_re;
-        fv[xoff].im = fv[i].im - temp_im;
+      for (i = 0; i < iheight; i += ju) {
+        b_temp_re_tmp = i + xoff;
+        temp_re = fv[b_temp_re_tmp].re;
+        temp_im = fv[b_temp_re_tmp].im;
+        fv[b_temp_re_tmp].re = fv[i].re - temp_re;
+        fv[b_temp_re_tmp].im = fv[i].im - temp_im;
         fv[i].re += temp_re;
         fv[i].im += temp_im;
       }
-      xoff = 1;
-      for (ju = k; ju < 128; ju += k) {
-        twid_re = b_fv[ju];
-        twid_im = fv1[ju];
-        i = xoff;
-        ihi = xoff + iheight;
+      istart = 1;
+      for (j = k; j < 128; j += k) {
+        twid_re = b_fv[j];
+        twid_im = fv1[j];
+        i = istart;
+        ihi = istart + iheight;
         while (i < ihi) {
-          temp_re_tmp_tmp = i + iDelta;
-          temp_re_tmp = fv[temp_re_tmp_tmp].im;
-          temp_im = fv[temp_re_tmp_tmp].re;
-          temp_re = twid_re * temp_im - twid_im * temp_re_tmp;
-          temp_im = twid_re * temp_re_tmp + twid_im * temp_im;
-          fv[temp_re_tmp_tmp].re = fv[i].re - temp_re;
-          fv[temp_re_tmp_tmp].im = fv[i].im - temp_im;
+          b_temp_re_tmp = i + xoff;
+          temp_re_tmp = fv[b_temp_re_tmp].im;
+          im = fv[b_temp_re_tmp].re;
+          temp_re = twid_re * im - twid_im * temp_re_tmp;
+          temp_im = twid_re * temp_re_tmp + twid_im * im;
+          fv[b_temp_re_tmp].re = fv[i].re - temp_re;
+          fv[b_temp_re_tmp].im = fv[i].im - temp_im;
           fv[i].re += temp_re;
           fv[i].im += temp_im;
-          i += iDelta2;
+          i += ju;
         }
-        xoff++;
+        istart++;
       }
       k /= 2;
-      iDelta = iDelta2;
-      iDelta2 += iDelta2;
-      iheight -= iDelta;
+      xoff = ju;
+      ju += ju;
+      iheight -= xoff;
     }
-    for (ju = 0; ju < 256; ju++) {
-      re_tmp = fy[ju].re;
-      twid_im = fv[ju].im;
-      temp_im = fy[ju].im;
-      temp_re = fv[ju].re;
-      fy[ju].re = re_tmp * temp_re - temp_im * twid_im;
-      fy[ju].im = re_tmp * twid_im + temp_im * temp_re;
+    for (xoff = 0; xoff < 256; xoff++) {
+      twid_re = fy[xoff].re;
+      im = fv[xoff].im;
+      temp_im = fy[xoff].im;
+      temp_re = fv[xoff].re;
+      fy[xoff].re = twid_re * temp_re - temp_im * im;
+      fy[xoff].im = twid_re * im + temp_im * temp_re;
     }
     xoff = 0;
     ju = 0;
@@ -1105,64 +1104,64 @@ void FFTImplementationCallback::dobluesteinfft(
     fv[xoff] = fy[255];
     for (i = 0; i <= 254; i += 2) {
       temp_re_tmp = fv[i + 1].re;
-      temp_re = fv[i + 1].im;
-      re_tmp = fv[i].re;
-      twid_re = fv[i].im;
-      fv[i + 1].re = re_tmp - temp_re_tmp;
-      fv[i + 1].im = twid_re - temp_re;
-      fv[i].re = re_tmp + temp_re_tmp;
-      fv[i].im = twid_re + temp_re;
+      im = fv[i + 1].im;
+      twid_re = fv[i].re;
+      temp_im = fv[i].im;
+      fv[i + 1].re = twid_re - temp_re_tmp;
+      fv[i + 1].im = temp_im - im;
+      fv[i].re = twid_re + temp_re_tmp;
+      fv[i].im = temp_im + im;
     }
-    iDelta = 2;
-    iDelta2 = 4;
+    xoff = 2;
+    ju = 4;
     k = 64;
     iheight = 253;
     while (k > 0) {
-      for (i = 0; i < iheight; i += iDelta2) {
-        xoff = i + iDelta;
-        temp_re = fv[xoff].re;
-        temp_im = fv[xoff].im;
-        fv[xoff].re = fv[i].re - temp_re;
-        fv[xoff].im = fv[i].im - temp_im;
+      for (i = 0; i < iheight; i += ju) {
+        b_temp_re_tmp = i + xoff;
+        temp_re = fv[b_temp_re_tmp].re;
+        temp_im = fv[b_temp_re_tmp].im;
+        fv[b_temp_re_tmp].re = fv[i].re - temp_re;
+        fv[b_temp_re_tmp].im = fv[i].im - temp_im;
         fv[i].re += temp_re;
         fv[i].im += temp_im;
       }
-      xoff = 1;
-      for (ju = k; ju < 128; ju += k) {
-        twid_re = b_fv[ju];
-        twid_im = fv2[ju];
-        i = xoff;
-        ihi = xoff + iheight;
+      istart = 1;
+      for (j = k; j < 128; j += k) {
+        twid_re = b_fv[j];
+        twid_im = fv2[j];
+        i = istart;
+        ihi = istart + iheight;
         while (i < ihi) {
-          temp_re_tmp_tmp = i + iDelta;
-          temp_re_tmp = fv[temp_re_tmp_tmp].im;
-          temp_im = fv[temp_re_tmp_tmp].re;
-          temp_re = twid_re * temp_im - twid_im * temp_re_tmp;
-          temp_im = twid_re * temp_re_tmp + twid_im * temp_im;
-          fv[temp_re_tmp_tmp].re = fv[i].re - temp_re;
-          fv[temp_re_tmp_tmp].im = fv[i].im - temp_im;
+          b_temp_re_tmp = i + xoff;
+          temp_re_tmp = fv[b_temp_re_tmp].im;
+          im = fv[b_temp_re_tmp].re;
+          temp_re = twid_re * im - twid_im * temp_re_tmp;
+          temp_im = twid_re * temp_re_tmp + twid_im * im;
+          fv[b_temp_re_tmp].re = fv[i].re - temp_re;
+          fv[b_temp_re_tmp].im = fv[i].im - temp_im;
           fv[i].re += temp_re;
           fv[i].im += temp_im;
-          i += iDelta2;
+          i += ju;
         }
-        xoff++;
+        istart++;
       }
       k /= 2;
-      iDelta = iDelta2;
-      iDelta2 += iDelta2;
-      iheight -= iDelta;
+      xoff = ju;
+      ju += ju;
+      iheight -= xoff;
     }
-    for (ju = 0; ju < 256; ju++) {
-      fv[ju].re *= 0.00390625F;
-      fv[ju].im *= 0.00390625F;
+    for (xoff = 0; xoff < 256; xoff++) {
+      fv[xoff].re *= 0.00390625F;
+      fv[xoff].im *= 0.00390625F;
     }
     for (k = 0; k < 100; k++) {
-      temp_im = wwc[k + 99].re;
-      temp_re = fv[k + 99].im;
-      twid_re = wwc[k + 99].im;
-      twid_im = fv[k + 99].re;
-      y[k + 100 * chan].re = temp_im * twid_im + twid_re * temp_re;
-      y[k + 100 * chan].im = temp_im * temp_re - twid_re * twid_im;
+      temp_re = wwc[k + 99].re;
+      twid_re = fv[k + 99].im;
+      im = wwc[k + 99].im;
+      temp_im = fv[k + 99].re;
+      y[k + 100 * chan].re = temp_re * temp_im + im * twid_re;
+      y[k + 100 * chan].im = temp_re * twid_re - im * temp_im;
     }
   }
 }

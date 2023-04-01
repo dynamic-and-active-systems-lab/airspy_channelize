@@ -1,39 +1,27 @@
 //
-// Prerelease License - for engineering feedback and testing purposes
-// only. Not for sale.
+// Academic License - for use in teaching, academic research, and meeting
+// course requirements at degree granting institutions only.  Not for
+// government, commercial, or other organizational use.
 // File: Channelizer.cpp
 //
-// MATLAB Coder version            : 5.6
-// C/C++ source code generated on  : 28-Mar-2023 15:24:09
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 01-Apr-2023 15:42:43
 //
 
 // Include Files
 #include "Channelizer.h"
 #include "FFTImplementationCallback.h"
 #include "airspy_channelize_data.h"
-#include "airspy_channelize_internal_types.h"
 #include "airspy_channelize_rtwutil.h"
 #include "airspy_channelize_types.h"
 #include "rt_nonfinite.h"
 #include "coder_array.h"
-#include "omp.h"
 #include <algorithm>
 #include <cmath>
-#include <cstdio>
-#include <cstdlib>
 #include <cstring>
-#include <sstream>
-#include <stdexcept>
-#include <string>
 
 // Function Declarations
-static void b_rtDivisionByZeroErrorN();
-
-static int div_s32(int numerator, int denominator);
-
-static int div_s32_floor(int numerator, int denominator);
-
-static void rtDivisionByZeroErrorN();
+static int div_s32(int numerator);
 
 // Function Definitions
 //
@@ -92,118 +80,26 @@ void Channelizer::releaseWrapper()
 }
 
 //
-// Arguments    : void
-// Return Type  : void
+// Arguments    : int numerator
+// Return Type  : int
 //
 } // namespace dsp
 } // namespace coder
-static void b_rtDivisionByZeroErrorN()
-{
-  std::string errMsg;
-  std::stringstream outStream;
-  outStream << "Division by zero detected.\nEarly termination due to division "
-               "by zero.";
-  outStream << "\n";
-  if (omp_in_parallel()) {
-    errMsg = outStream.str();
-    std::fprintf(stderr, "%s", errMsg.c_str());
-    std::abort();
-  } else {
-    throw std::runtime_error(outStream.str());
-  }
-}
-
-//
-// Arguments    : int numerator
-//                int denominator
-// Return Type  : int
-//
-static int div_s32(int numerator, int denominator)
+static int div_s32(int numerator)
 {
   int quotient;
-  if (denominator == 0) {
-    rtDivisionByZeroErrorN();
+  unsigned int tempAbsQuotient;
+  if (numerator < 0) {
+    tempAbsQuotient = ~static_cast<unsigned int>(numerator) + 1U;
   } else {
-    unsigned int tempAbsQuotient;
-    unsigned int u;
-    if (numerator < 0) {
-      tempAbsQuotient = ~static_cast<unsigned int>(numerator) + 1U;
-    } else {
-      tempAbsQuotient = static_cast<unsigned int>(numerator);
-    }
-    if (denominator < 0) {
-      u = ~static_cast<unsigned int>(denominator) + 1U;
-    } else {
-      u = static_cast<unsigned int>(denominator);
-    }
-    tempAbsQuotient /= u;
-    if ((numerator < 0) != (denominator < 0)) {
-      quotient = -static_cast<int>(tempAbsQuotient);
-    } else {
-      quotient = static_cast<int>(tempAbsQuotient);
-    }
+    tempAbsQuotient = static_cast<unsigned int>(numerator);
+  }
+  if (numerator >= 0) {
+    quotient = -static_cast<int>(tempAbsQuotient);
+  } else {
+    quotient = static_cast<int>(tempAbsQuotient);
   }
   return quotient;
-}
-
-//
-// Arguments    : int numerator
-//                int denominator
-// Return Type  : int
-//
-static int div_s32_floor(int numerator, int denominator)
-{
-  int quotient;
-  if (denominator == 0) {
-    b_rtDivisionByZeroErrorN();
-  } else {
-    unsigned int absDenominator;
-    unsigned int absNumerator;
-    unsigned int tempAbsQuotient;
-    boolean_T quotientNeedsNegation;
-    if (numerator < 0) {
-      absNumerator = ~static_cast<unsigned int>(numerator) + 1U;
-    } else {
-      absNumerator = static_cast<unsigned int>(numerator);
-    }
-    if (denominator < 0) {
-      absDenominator = ~static_cast<unsigned int>(denominator) + 1U;
-    } else {
-      absDenominator = static_cast<unsigned int>(denominator);
-    }
-    quotientNeedsNegation = ((numerator < 0) != (denominator < 0));
-    tempAbsQuotient = absNumerator / absDenominator;
-    if (quotientNeedsNegation) {
-      absNumerator %= absDenominator;
-      if (absNumerator > 0U) {
-        tempAbsQuotient++;
-      }
-      quotient = -static_cast<int>(tempAbsQuotient);
-    } else {
-      quotient = static_cast<int>(tempAbsQuotient);
-    }
-  }
-  return quotient;
-}
-
-//
-// Arguments    : void
-// Return Type  : void
-//
-static void rtDivisionByZeroErrorN()
-{
-  std::string errMsg;
-  std::stringstream outStream;
-  outStream << "Division by zero detected.\nEarly termination due to division "
-               "by zero.";
-  outStream << "\n";
-  if (omp_in_parallel()) {
-    errMsg = outStream.str();
-    std::fprintf(stderr, "%s", errMsg.c_str());
-    std::abort();
-  } else {
-    throw std::runtime_error(outStream.str());
-  }
 }
 
 //
@@ -235,85 +131,41 @@ void Channelizer::step(const ::coder::array<creal32_T, 1U> &varargin_1,
                        ::coder::array<creal32_T, 2U> &varargout_1)
 {
   static rtBoundsCheckInfo e_emlrtBCI{
-      1,                                         // iFirst
-      1200,                                      // iLast
-      948,                                       // lineNo
-      23,                                        // colNo
+      -1,                                        // iFirst
+      -1,                                        // iLast
+      918,                                       // lineNo
+      19,                                        // colNo
       "",                                        // aName
       "Channelizer/firpolyphase_channelizer_cg", // fName
-      "/Applications/MATLAB_R2023a.app/toolbox/dsp/dsp/+dsp/Channelizer.m", // pName
+      "C:\\Program Files\\MATLAB\\toolbox\\dsp\\dsp\\+dsp\\Channelizer.m", // pName
       0 // checkKind
   };
   static rtBoundsCheckInfo f_emlrtBCI{
-      1,                                         // iFirst
-      1200,                                      // iLast
-      995,                                       // lineNo
-      15,                                        // colNo
-      "",                                        // aName
-      "Channelizer/firpolyphase_channelizer_cg", // fName
-      "/Applications/MATLAB_R2023a.app/toolbox/dsp/dsp/+dsp/Channelizer.m", // pName
-      0 // checkKind
-  };
-  static rtBoundsCheckInfo g_emlrtBCI{
       -1,                                        // iFirst
       -1,                                        // iLast
-      995,                                       // lineNo
-      56,                                        // colNo
-      "",                                        // aName
-      "Channelizer/firpolyphase_channelizer_cg", // fName
-      "/Applications/MATLAB_R2023a.app/toolbox/dsp/dsp/+dsp/Channelizer.m", // pName
-      0 // checkKind
-  };
-  static rtBoundsCheckInfo h_emlrtBCI{
-      -1,                                        // iFirst
-      -1,                                        // iLast
-      985,                                       // lineNo
-      43,                                        // colNo
-      "",                                        // aName
-      "Channelizer/firpolyphase_channelizer_cg", // fName
-      "/Applications/MATLAB_R2023a.app/toolbox/dsp/dsp/+dsp/Channelizer.m", // pName
-      0 // checkKind
-  };
-  static rtBoundsCheckInfo i_emlrtBCI{
-      -1,                                        // iFirst
-      -1,                                        // iLast
-      981,                                       // lineNo
+      914,                                       // lineNo
       23,                                        // colNo
       "",                                        // aName
       "Channelizer/firpolyphase_channelizer_cg", // fName
-      "/Applications/MATLAB_R2023a.app/toolbox/dsp/dsp/+dsp/Channelizer.m", // pName
-      0 // checkKind
-  };
-  static rtBoundsCheckInfo j_emlrtBCI{
-      -1,                                        // iFirst
-      -1,                                        // iLast
-      975,                                       // lineNo
-      32,                                        // colNo
-      "",                                        // aName
-      "Channelizer/firpolyphase_channelizer_cg", // fName
-      "/Applications/MATLAB_R2023a.app/toolbox/dsp/dsp/+dsp/Channelizer.m", // pName
+      "C:\\Program Files\\MATLAB\\toolbox\\dsp\\dsp\\+dsp\\Channelizer.m", // pName
       0 // checkKind
   };
   static rtEqualityCheckInfo b_emlrtECI{
       -1,                                        // nDims
-      995,                                       // lineNo
-      13,                                        // colNo
+      909,                                       // lineNo
+      17,                                        // colNo
       "Channelizer/firpolyphase_channelizer_cg", // fName
-      "/Applications/MATLAB_R2023a.app/toolbox/dsp/dsp/+dsp/Channelizer.m" // pName
+      "C:\\Program Files\\MATLAB\\toolbox\\dsp\\dsp\\+dsp\\Channelizer.m" // pName
   };
   static rtEqualityCheckInfo c_emlrtECI{
       -1,                                        // nDims
-      948,                                       // lineNo
+      924,                                       // lineNo
       13,                                        // colNo
       "Channelizer/firpolyphase_channelizer_cg", // fName
-      "/Applications/MATLAB_R2023a.app/toolbox/dsp/dsp/+dsp/Channelizer.m" // pName
+      "C:\\Program Files\\MATLAB\\toolbox\\dsp\\dsp\\+dsp\\Channelizer.m" // pName
   };
-  static rtRunTimeErrorInfo i_emlrtRTEI{
-      946,                                      // lineNo
-      "Channelizer/firpolyphase_channelizer_cg" // fName
-  };
-  static rtRunTimeErrorInfo j_emlrtRTEI{
-      770,                             // lineNo
+  static rtRunTimeErrorInfo p_emlrtRTEI{
+      665,                             // lineNo
       "Channelizer/validateInputsImpl" // fName
   };
   static const double dv[1201]{
@@ -1639,9 +1491,7 @@ void Channelizer::step(const ::coder::array<creal32_T, 1U> &varargin_1,
                                 2.9572522991297334E-5,
                                 2.8146365123063157E-5,
                                 2.6753730909050118E-5};
-  static const unsigned int inSize[8]{102400U, 1U, 1U, 1U, 1U, 1U, 1U, 1U};
-  static const unsigned int uv[8]{102400U, 1U, 1U, 1U, 1U, 1U, 1U, 1U};
-  array<creal32_T, 2U> b_v;
+  array<creal32_T, 2U> c_v;
   array<creal32_T, 2U> r;
   array<creal32_T, 2U> v;
   creal32_T obj[1100];
@@ -1650,45 +1500,35 @@ void Channelizer::step(const ::coder::array<creal32_T, 1U> &varargin_1,
   float obj_im;
   float obj_re;
   float obj_re_tmp;
-  int K;
-  int b_i;
   int i;
   int i1;
-  int i2;
-  int loop_ub;
-  int mm;
-  int phIdx;
-  int qY;
-  int t;
-  boolean_T anyInputSizeChanged;
-  boolean_T exitg1;
+  int k;
+  int vidx;
   if (isInitialized == 2) {
-    rtErrorWithMessageID("step", g_emlrtRTEI.fName, g_emlrtRTEI.lineNo);
+    rtErrorWithMessageID("step", m_emlrtRTEI.fName, m_emlrtRTEI.lineNo);
   }
   if (isInitialized != 1) {
     double num[1201];
+    isSetupComplete = false;
     if (isInitialized != 0) {
-      b_rtErrorWithMessageID("setup", h_emlrtRTEI.fName, h_emlrtRTEI.lineNo);
+      b_rtErrorWithMessageID("setup", n_emlrtRTEI.fName, n_emlrtRTEI.lineNo);
     }
     isInitialized = 1;
-    for (i = 0; i < 8; i++) {
-      inputVarSize[0].f1[i] = inSize[i];
-    }
     if ((numChannels != -1) && (numChannels != 0) && (numChannels != 1)) {
-      b_rtErrorWithMessageID(j_emlrtRTEI.fName, j_emlrtRTEI.lineNo);
+      b_rtErrorWithMessageID(p_emlrtRTEI.fName, p_emlrtRTEI.lineNo);
     }
     numChannels = 1;
-    for (t = 0; t < 1201; t++) {
+    for (k = 0; k < 1201; k++) {
       double d;
-      d = dv[t];
+      d = dv[k];
       if (std::abs(d) < 1.0020841800044864E-292) {
         d = 1.0;
       } else {
         d *= 3.1415926535897931;
         d = std::sin(d) / d;
       }
-      d *= dv1[t];
-      num[t] = d;
+      d *= dv1[k];
+      num[k] = d;
     }
     for (i = 0; i < 6; i++) {
       num[100 * i + 700] = 0.0;
@@ -1697,249 +1537,130 @@ void Channelizer::step(const ::coder::array<creal32_T, 1U> &varargin_1,
       num[-100 * i + 500] = 0.0;
     }
     NTPB = 12.0F;
-    for (i = 0; i < 1200; i++) {
-      obj_re = static_cast<float>(num[i]);
-      PolyphaseMatrix[i] = obj_re;
-      actpmatrix[i] = obj_re;
+    for (k = 0; k < 1200; k++) {
+      PolyphaseMatrix[k] = static_cast<float>(num[k]);
+      States[k].re = 0.0F;
+      States[k].im = 0.0F;
     }
-    Halideflag = (NTPB >= 12.0F);
-    phaseIdx = 1;
-    ModuloIdx = 0;
+    std::memset(&vextra[0], 0, 100U * sizeof(creal32_T));
+    IPPflag = 0U;
     numStates = 1.0F;
-    for (b_i = 0; b_i < 100; b_i++) {
-      StopIdx[b_i] = 0;
-      if (b_i == 0) {
-        t = 0;
-      } else {
-        t = b_i;
-      }
-      StartIdx[b_i] =
-          static_cast<int>(std::ceil(static_cast<double>(t) / 100.0));
-      if (t == 99) {
-        StopIdx[b_i] = 1;
-      } else {
-        StopIdx[b_i] = static_cast<int>(std::ceil(
-            std::fmod(static_cast<double>(b_i) + 1.0, 100.0) / 100.0));
-      }
-    }
     isSetupComplete = true;
     TunablePropsChanged = false;
-    std::memset(&States[0], 0, 1200U * sizeof(creal32_T));
+    for (k = 0; k < 1200; k++) {
+      actpmatrix[k] = PolyphaseMatrix[k];
+      States[k].re = 0.0F;
+      States[k].im = 0.0F;
+    }
     std::memset(&vextra[0], 0, 100U * sizeof(creal32_T));
-    currentState = 1;
   }
   if (TunablePropsChanged) {
     TunablePropsChanged = false;
     std::copy(&PolyphaseMatrix[0], &PolyphaseMatrix[1200], &actpmatrix[0]);
   }
-  anyInputSizeChanged = false;
-  t = 0;
-  exitg1 = false;
-  while ((!exitg1) && (t < 8)) {
-    if (inputVarSize[0].f1[t] != uv[t]) {
-      anyInputSizeChanged = true;
-      for (i = 0; i < 8; i++) {
-        inputVarSize[0].f1[i] = inSize[i];
-      }
-      exitg1 = true;
-    } else {
-      t++;
-    }
-  }
-  if (anyInputSizeChanged && (numChannels != -1) && (numChannels != 0) &&
-      (numChannels != 1)) {
-    b_rtErrorWithMessageID(j_emlrtRTEI.fName, j_emlrtRTEI.lineNo);
-  }
-  phIdx = phaseIdx;
   v.set_size(1024, 100);
   for (i = 0; i < 100; i++) {
-    v[v.size(0) * i] = vextra[i];
+    v[1024 * i] = vextra[i];
     for (i1 = 0; i1 < 1023; i1++) {
-      v[(i1 + v.size(0) * i) + 1].re = 0.0F;
-      v[(i1 + v.size(0) * i) + 1].im = 0.0F;
+      v[(i1 + 1024 * i) + 1].re = 0.0F;
+      v[(i1 + 1024 * i) + 1].im = 0.0F;
     }
   }
-  obj_re = std::round(numStates);
-  if (obj_re < 2.14748365E+9F) {
-    if (obj_re >= -2.14748365E+9F) {
-      K = static_cast<int>(obj_re);
-    } else {
-      K = MIN_int32_T;
-    }
-  } else if (obj_re >= 2.14748365E+9F) {
-    K = MAX_int32_T;
-  } else {
-    K = 0;
-  }
-  if (phIdx > 102400) {
-    c_rtErrorWithMessageID(i_emlrtRTEI.fName, i_emlrtRTEI.lineNo);
-  }
-  if (phIdx < 1) {
-    i = 0;
-    i1 = 1;
-    i2 = -1;
-    mm = 0;
-  } else {
-    i = phIdx - 1;
-    i1 = -1;
-    i2 = 0;
-    if (phIdx > 1200) {
-      rtDynamicBoundsError(phIdx, 1, 1200, e_emlrtBCI);
-    }
-    mm = phIdx;
-  }
-  loop_ub = div_s32(i2 - i, i1);
-  i2 = loop_ub + 1;
-  rtSubAssignSizeCheck(&mm, i2, c_emlrtECI);
-  for (i2 = 0; i2 <= loop_ub; i2++) {
-    States[i2] = varargin_1[i + i1 * i2];
-  }
-  for (mm = 0; mm < 100; mm++) {
+  States[0] = varargin_1[0];
+  for (int mm{0}; mm < 100; mm++) {
     obj_re = 0.0F;
     obj_im = 0.0F;
     for (i = 0; i < 12; i++) {
-      t = mm + 100 * i;
-      b_obj_re = actpmatrix[t];
-      obj_re_tmp = States[t].im;
-      b_obj_re_tmp = States[t].re;
+      k = mm + 100 * i;
+      b_obj_re = actpmatrix[k];
+      obj_re_tmp = States[k].im;
+      b_obj_re_tmp = States[k].re;
       obj_re += b_obj_re * b_obj_re_tmp - 0.0F * obj_re_tmp;
       obj_im += b_obj_re * obj_re_tmp + 0.0F * b_obj_re_tmp;
     }
     if (mm + 1 == 1) {
-      i = 0;
+      k = 0;
     } else {
-      i = 100 - mm;
+      k = 100 - mm;
     }
-    v[v.size(0) * i].re = obj_re;
+    v[1024 * k].re = obj_re;
     if (mm + 1 == 1) {
-      i = 0;
+      k = 0;
     } else {
-      i = 100 - mm;
+      k = 100 - mm;
     }
-    v[v.size(0) * i].im = obj_im;
+    v[1024 * k].im = obj_im;
   }
-  t = currentState;
-  if (t > 2147483646) {
-    qY = MAX_int32_T;
-  } else {
-    qY = t + 1;
-  }
-  if (K != 0) {
-    qY -= div_s32_floor(qY, K) * K;
-  }
-  if (qY == 0) {
-    qY = K;
-  }
-  b_i = 2;
-  t = 0;
-  i = phIdx + 1;
-  for (loop_ub = i; loop_ub <= 102301; loop_ub += 100) {
+  vidx = 2;
+  i = 100;
+  i1 = div_s32(-99) + 1;
+  for (int nn{0}; nn <= 102299; nn += 100) {
+    creal32_T b_v[100];
     std::copy(&States[0], &States[1100], &obj[0]);
     std::copy(&obj[0], &obj[1100], &States[100]);
-    for (t = 0; t < 100; t++) {
-      i1 = (loop_ub - t) + 99;
-      if ((i1 < 1) || (i1 > 102400)) {
-        rtDynamicBoundsError(i1, 1, 102400, j_emlrtBCI);
-      }
-      States[t].re = varargin_1[i1 - 1].re;
-      States[t].im = varargin_1[i1 - 1].im;
+    rtSubAssignSizeCheck(&i, &i1, &b_emlrtECI);
+    for (int i2{0}; i2 < 100; i2++) {
+      States[i2] = varargin_1[(nn - i2) + 100];
     }
-    for (mm = 0; mm < 100; mm++) {
+    for (int mm{0}; mm < 100; mm++) {
       obj_re = 0.0F;
       obj_im = 0.0F;
-      for (i1 = 0; i1 < 12; i1++) {
-        t = mm + 100 * i1;
-        b_obj_re = actpmatrix[t];
-        obj_re_tmp = States[t].im;
-        b_obj_re_tmp = States[t].re;
+      for (int i2{0}; i2 < 12; i2++) {
+        k = mm + 100 * i2;
+        b_obj_re = actpmatrix[k];
+        obj_re_tmp = States[k].im;
+        b_obj_re_tmp = States[k].re;
         obj_re += b_obj_re * b_obj_re_tmp - 0.0F * obj_re_tmp;
         obj_im += b_obj_re * obj_re_tmp + 0.0F * b_obj_re_tmp;
       }
-      if (b_i > 1024) {
-        rtDynamicBoundsError(1025, 1, 1024, i_emlrtBCI);
+      if (vidx > 1024) {
+        rtDynamicBoundsError(1025, 1, 1024, &f_emlrtBCI);
       }
       if (mm + 1 == 1) {
-        i1 = 0;
+        k = 0;
       } else {
-        i1 = 100 - mm;
+        k = 100 - mm;
       }
-      v[(b_i + v.size(0) * i1) - 1].re = obj_re;
+      v[(vidx + 1024 * k) - 1].re = obj_re;
       if (mm + 1 == 1) {
-        i1 = 0;
+        k = 0;
       } else {
-        i1 = 100 - mm;
+        k = 100 - mm;
       }
-      v[(b_i + v.size(0) * i1) - 1].im = obj_im;
+      v[(vidx + 1024 * k) - 1].im = obj_im;
     }
-    if (qY > 2147483646) {
-      qY = MAX_int32_T;
-    } else {
-      qY++;
+    if (vidx > 1024) {
+      rtDynamicBoundsError(1025, 1, 1024, &e_emlrtBCI);
     }
-    if (K != 0) {
-      qY -= div_s32_floor(qY, K) * K;
+    for (int i2{0}; i2 < 100; i2++) {
+      b_v[i2] = v[(vidx + 1024 * i2) - 1];
     }
-    if (qY == 0) {
-      qY = K;
+    for (int i2{0}; i2 < 100; i2++) {
+      v[(vidx + 1024 * i2) - 1] = b_v[i2];
     }
-    if (b_i > 1024) {
-      rtDynamicBoundsError(1025, 1, 1024, h_emlrtBCI);
-    }
-    b_i++;
-    t = loop_ub;
-  }
-  if (t + 99 < -2147381248) {
-    t = MIN_int32_T;
-  } else {
-    t -= 102301;
+    vidx++;
   }
   std::copy(&States[0], &States[1100], &obj[0]);
   std::copy(&obj[0], &obj[1100], &States[100]);
-  if (t + 102401 > 102400) {
-    i1 = 1;
-    mm = 1;
-    i2 = 0;
-  } else {
-    i1 = 102400;
-    mm = -1;
-    if ((t + 102401 < 1) || (t + 102401 > 102400)) {
-      rtDynamicBoundsError(t + 102401, 1, 102400, g_emlrtBCI);
-    }
-    i2 = t + 102401;
+  i = 99;
+  i1 = 99;
+  rtSubAssignSizeCheck(&i, &i1, &c_emlrtECI);
+  for (i = 0; i < 99; i++) {
+    States[i + 1] = varargin_1[102399 - i];
   }
-  if (t + 101 > 100) {
-    b_i = -1;
-    i = -1;
-  } else {
-    if ((t + 101 < 1) || (t + 101 > 1200)) {
-      rtDynamicBoundsError(t + 101, 1, 1200, f_emlrtBCI);
-    }
-    b_i = t + 99;
-    i = 99;
-  }
-  i -= b_i;
-  loop_ub = div_s32(i2 - i1, mm);
-  i2 = loop_ub + 1;
-  rtSubAssignSizeCheck(&i, i2, b_emlrtECI);
-  for (i = 0; i <= loop_ub; i++) {
-    States[(b_i + i) + 1] = varargin_1[(i1 + mm * i) - 1];
-  }
-  b_v.set_size(100, 1024);
+  c_v.set_size(100, 1024);
   for (i = 0; i < 1024; i++) {
     for (i1 = 0; i1 < 100; i1++) {
-      b_v[i1 + 100 * i] = v[i + v.size(0) * i1];
+      c_v[i1 + 100 * i] = v[i + 1024 * i1];
     }
   }
-  ::coder::internal::fft::FFTImplementationCallback::dobluesteinfft(b_v, r);
-  varargout_1.set_size(r.size(1), 100);
-  loop_ub = r.size(1);
+  ::coder::internal::fft::FFTImplementationCallback::dobluesteinfft(c_v, r);
+  varargout_1.set_size(1024, 100);
   for (i = 0; i < 100; i++) {
-    for (i1 = 0; i1 < loop_ub; i1++) {
-      varargout_1[i1 + varargout_1.size(0) * i] = r[i + 100 * i1];
+    for (i1 = 0; i1 < 1024; i1++) {
+      varargout_1[i1 + 1024 * i] = r[i + 100 * i1];
     }
   }
-  phaseIdx = t + 100;
-  currentState = qY;
 }
 
 } // namespace dsp

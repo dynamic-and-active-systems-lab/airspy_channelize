@@ -1,10 +1,11 @@
 //
-// Prerelease License - for engineering feedback and testing purposes
-// only. Not for sale.
+// Academic License - for use in teaching, academic research, and meeting
+// course requirements at degree granting institutions only.  Not for
+// government, commercial, or other organizational use.
 // File: airspy_channelize.cpp
 //
-// MATLAB Coder version            : 5.6
-// C/C++ source code generated on  : 28-Mar-2023 15:24:09
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 01-Apr-2023 15:42:43
 //
 
 // Include Files
@@ -27,8 +28,8 @@
 #include "udp.h"
 #include <cmath>
 #include <cstddef>
-#include <cstdio>
 #include <cstring>
+#include <stdio.h>
 
 // Function Definitions
 //
@@ -130,7 +131,7 @@ void airspy_channelize(const coder::array<int, 2U> &channelsUsed)
   creal32_T dataReceived_data[2039];
   double startTimeStamp;
   double tocElapsedSubtract;
-  unsigned long totalSampsReceived;
+  unsigned long long totalSampsReceived;
   int loop_ub;
   int qY;
   unsigned int sampsTransmitted;
@@ -139,7 +140,7 @@ void airspy_channelize(const coder::array<int, 2U> &channelsUsed)
   }
   //  Decimation is currently set to equal nChannels. Must be a factor of
   //  rawFrameLength Must be a multiple of 128
-  totalSampsReceived = 0UL;
+  totalSampsReceived = 0ULL;
   sampsTransmitted = 0U;
   startTimeStamp = 0.0;
   tocElapsedSubtract = 0.0;
@@ -171,14 +172,14 @@ void airspy_channelize(const coder::array<int, 2U> &channelsUsed)
   //  + 1 for timestamp
   //  Start by clearing any stale data
   udpReceiverClear(udpReceiver.udpReceiver);
-  std::printf("Waiting for new udp data\n");
-  std::fflush(stdout);
+  printf("Waiting for new udp data\n");
+  fflush(stdout);
   coder::tic();
   while (1) {
     double tocBasedElapseTime;
-    unsigned long b_qY;
-    loop_ub = udpReceiver.receive(dataReceived_data);
-    if (totalSampsReceived == 0UL) {
+    unsigned long long b_qY;
+    udpReceiver.receive(dataReceived_data, &loop_ub);
+    if (totalSampsReceived == 0ULL) {
       b_this.init();
       startTimeStamp = b_this.data.re / 1000.0 - 0.0054373333333333339;
       //  At this point the difference between tic and toc for the first packet
@@ -188,8 +189,8 @@ void airspy_channelize(const coder::array<int, 2U> &channelsUsed)
       //  tocElapsedAdjust for this purpose.
       tocElapsedSubtract = coder::toc() - 0.0054373333333333339;
     }
-    b_qY = totalSampsReceived + 2039UL;
-    if (totalSampsReceived + 2039UL < totalSampsReceived) {
+    b_qY = totalSampsReceived + 2039ULL;
+    if (totalSampsReceived + 2039ULL < totalSampsReceived) {
       b_qY = MAX_uint64_T;
     }
     totalSampsReceived = b_qY;
@@ -197,10 +198,10 @@ void airspy_channelize(const coder::array<int, 2U> &channelsUsed)
     //  Reset if a big time offset developes
     tocBasedElapseTime -= static_cast<double>(b_qY) * 2.6666666666666668E-6;
     if (std::abs(tocBasedElapseTime) > 0.1) {
-      std::printf("Resetting buffers to due to drift: Current diff b/t toc and "
-                  "samp time: %f s \n",
-                  tocBasedElapseTime);
-      std::fflush(stdout);
+      printf("Resetting buffers to due to drift: Current diff b/t toc and samp "
+             "time: %f s \n",
+             tocBasedElapseTime);
+      fflush(stdout);
       if (dataBufferFIFO.pBuffer.isInitialized == 2) {
         rtErrorWithMessageID("reset", emlrtRTEI.fName, emlrtRTEI.lineNo);
       }
@@ -213,7 +214,7 @@ void airspy_channelize(const coder::array<int, 2U> &channelsUsed)
                     204801U * sizeof(creal32_T));
       }
       udpReceiverClear(udpReceiver.udpReceiver);
-      totalSampsReceived = 0UL;
+      totalSampsReceived = 0ULL;
       sampsTransmitted = 0U;
     }
     //  Collect samples in FIFO until we have enough to channelize
@@ -313,8 +314,8 @@ void airspy_channelize(const coder::array<int, 2U> &channelsUsed)
         x = MAX_uint32_T;
       }
       sampsTransmitted = x;
-      std::printf("Channelized samples: transmitted %u\n", x);
-      std::fflush(stdout);
+      printf("Channelized samples: transmitted %u\n", x);
+      fflush(stdout);
     }
   }
 }

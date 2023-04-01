@@ -1,10 +1,11 @@
 //
-// Prerelease License - for engineering feedback and testing purposes
-// only. Not for sale.
+// Academic License - for use in teaching, academic research, and meeting
+// course requirements at degree granting institutions only.  Not for
+// government, commercial, or other organizational use.
 // File: timeKeeper.h
 //
-// MATLAB Coder version            : 5.6
-// C/C++ source code generated on  : 28-Mar-2023 15:24:09
+// MATLAB Coder version            : 5.4
+// C/C++ source code generated on  : 01-Apr-2023 15:42:43
 //
 
 #ifndef TIMEKEEPER_H
@@ -18,14 +19,14 @@
 // Function Declarations
 namespace coder {
 namespace internal {
-namespace b_time {
+namespace time {
 namespace impl {
-double timeKeeper(double &outTime_tv_nsec);
-
 void timeKeeper(double newTime_tv_sec, double newTime_tv_nsec);
 
+void timeKeeper(double *outTime_tv_sec, double *outTime_tv_nsec);
+
 } // namespace impl
-} // namespace b_time
+} // namespace time
 } // namespace internal
 } // namespace coder
 void savedTime_not_empty_init();
