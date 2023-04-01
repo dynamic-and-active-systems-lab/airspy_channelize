@@ -5,7 +5,7 @@
 // File: airspy_channelize_internal_types.h
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 01-Apr-2023 15:42:43
+// C/C++ source code generated on  : 01-Apr-2023 15:58:05
 //
 
 #ifndef AIRSPY_CHANNELIZE_INTERNAL_TYPES_H

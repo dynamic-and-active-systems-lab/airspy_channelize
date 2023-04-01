@@ -91,7 +91,7 @@ end
 decimationFactor            = 100;
 nChannels                   = decimationFactor; % Decimation is currently set to equal nChannels. Must be a factor of rawFrameLength
 
-incomingSampleRate          = 192000; // AirSpy HF+ Sample Rate
+incomingSampleRate          = 192000; % AirSpy HF+ Sample Rate
 outgoingSampleRate          = incomingSampleRate / decimationFactor;
 
 sampleCountPerChannelOutput = 1024;             % Must be a multiple of 128

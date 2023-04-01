@@ -5,7 +5,7 @@
 // File: airspy_channelize.cpp
 //
 // MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 01-Apr-2023 15:42:43
+// C/C++ source code generated on  : 01-Apr-2023 15:58:05
 //
 
 // Include Files
@@ -139,7 +139,7 @@ void airspy_channelize(const coder::array<int, 2U> &channelsUsed)
     airspy_channelize_initialize();
   }
   //  Decimation is currently set to equal nChannels. Must be a factor of
-  //  rawFrameLength Must be a multiple of 128
+  //  rawFrameLength AirSpy HF+ Sample Rate Must be a multiple of 128
   totalSampsReceived = 0ULL;
   sampsTransmitted = 0U;
   startTimeStamp = 0.0;
@@ -181,13 +181,13 @@ void airspy_channelize(const coder::array<int, 2U> &channelsUsed)
     udpReceiver.receive(dataReceived_data, &loop_ub);
     if (totalSampsReceived == 0ULL) {
       b_this.init();
-      startTimeStamp = b_this.data.re / 1000.0 - 0.0054373333333333339;
+      startTimeStamp = b_this.data.re / 1000.0 - 0.010619791666666666;
       //  At this point the difference between tic and toc for the first packet
       //  is arbitrary. Since we may have been sitting waiting for the first
       //  packet to come in. Because of this we need to be able to subtract out
       //  this waiting time from our elapsed time calcuations. We use the
       //  tocElapsedAdjust for this purpose.
-      tocElapsedSubtract = coder::toc() - 0.0054373333333333339;
+      tocElapsedSubtract = coder::toc() - 0.010619791666666666;
     }
     b_qY = totalSampsReceived + 2039ULL;
     if (totalSampsReceived + 2039ULL < totalSampsReceived) {
@@ -196,7 +196,7 @@ void airspy_channelize(const coder::array<int, 2U> &channelsUsed)
     totalSampsReceived = b_qY;
     tocBasedElapseTime = coder::toc() - tocElapsedSubtract;
     //  Reset if a big time offset developes
-    tocBasedElapseTime -= static_cast<double>(b_qY) * 2.6666666666666668E-6;
+    tocBasedElapseTime -= static_cast<double>(b_qY) * 5.2083333333333332E-6;
     if (std::abs(tocBasedElapseTime) > 0.1) {
       printf("Resetting buffers to due to drift: Current diff b/t toc and samp "
              "time: %f s \n",
@@ -267,7 +267,7 @@ void airspy_channelize(const coder::array<int, 2U> &channelsUsed)
       dataBufferFIFO.read(varargin_1);
       channelizer.step(varargin_1, channelData);
       bufferTimeStamp = startTimeStamp + static_cast<double>(sampsTransmitted) *
-                                             0.00026666666666666668;
+                                             0.00052083333333333333;
       tocBasedElapseTime = std::floor(bufferTimeStamp);
       if (tocBasedElapseTime < 4.294967296E+9) {
         if (tocBasedElapseTime >= 0.0) {
