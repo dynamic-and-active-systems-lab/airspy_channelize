@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: Channelizer.h
 //
-// MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 01-Apr-2023 15:42:43
+// MATLAB Coder version            : 23.2
+// C/C++ source code generated on  : 11-Dec-2023 13:33:03
 //
 
 #ifndef CHANNELIZER_H
@@ -23,8 +23,8 @@ namespace coder {
 namespace dsp {
 class Channelizer {
 public:
-  void step(const ::coder::array<creal32_T, 1U> &varargin_1,
-            ::coder::array<creal32_T, 2U> &varargout_1);
+  void step(const array<creal32_T, 1U> &varargin_1,
+            array<creal32_T, 2U> &varargout_1);
   void matlabCodegenDestructor();
   void release();
   void releaseWrapper();
@@ -46,15 +46,18 @@ protected:
   creal32_T States[1200];
   float PolyphaseMatrix[1200];
   float actpmatrix[1200];
-  unsigned int IPPflag;
+  int ModuloIdx;
+  int StartIdx[100];
+  int StopIdx[100];
 
 private:
   boolean_T isSetupComplete;
   boolean_T TunablePropsChanged;
   cell_wrap_3 inputVarSize[1];
   creal32_T vextra[100];
-  float NTPB;
   float numStates;
+  int phaseIdx;
+  int currentState;
 };
 
 } // namespace dsp

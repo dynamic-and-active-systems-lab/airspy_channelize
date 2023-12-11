@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: airspy_channelize.cpp
 //
-// MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 01-Apr-2023 15:42:43
+// MATLAB Coder version            : 23.2
+// C/C++ source code generated on  : 11-Dec-2023 13:33:03
 //
 
 // Include Files
@@ -28,8 +28,8 @@
 #include "udp.h"
 #include <cmath>
 #include <cstddef>
+#include <cstdio>
 #include <cstring>
-#include <stdio.h>
 
 // Function Definitions
 //
@@ -131,7 +131,9 @@ void airspy_channelize(const coder::array<int, 2U> &channelsUsed)
   creal32_T dataReceived_data[2039];
   double startTimeStamp;
   double tocElapsedSubtract;
-  unsigned long long totalSampsReceived;
+  double totalLostTime;
+  double totalNumMissingSamps;
+  unsigned long totalSampsReceived;
   int loop_ub;
   int qY;
   unsigned int sampsTransmitted;
@@ -140,7 +142,7 @@ void airspy_channelize(const coder::array<int, 2U> &channelsUsed)
   }
   //  Decimation is currently set to equal nChannels. Must be a factor of
   //  rawFrameLength Must be a multiple of 128
-  totalSampsReceived = 0ULL;
+  totalSampsReceived = 0UL;
   sampsTransmitted = 0U;
   startTimeStamp = 0.0;
   tocElapsedSubtract = 0.0;
@@ -161,7 +163,7 @@ void airspy_channelize(const coder::array<int, 2U> &channelsUsed)
   udpReceiver.samplesPerFrame = 2039.0;
   udpReceiver.udpReceiver = udpReceiverSetup(10000.0);
   if (udpReceiver.udpReceiver <= 0) {
-    rtErrorWithMessageID(b_emlrtRTEI.fName, b_emlrtRTEI.lineNo);
+    rtErrorWithMessageID(emlrtRTEI.fName, emlrtRTEI.lineNo);
   }
   b_channelsUsed.set_size(1, channelsUsed.size(1));
   loop_ub = channelsUsed.size(0) * channelsUsed.size(1) - 1;
@@ -172,14 +174,18 @@ void airspy_channelize(const coder::array<int, 2U> &channelsUsed)
   //  + 1 for timestamp
   //  Start by clearing any stale data
   udpReceiverClear(udpReceiver.udpReceiver);
-  printf("Waiting for new udp data\n");
-  fflush(stdout);
+  std::printf("Waiting for new udp data\n");
+  std::fflush(stdout);
+  //  KEEP TRACK OF ESTIMATE OF LOST SAMPLES
+  totalNumMissingSamps = 0.0;
+  totalLostTime = 0.0;
   coder::tic();
   while (1) {
+    double currNumMissingSamps;
     double tocBasedElapseTime;
-    unsigned long long b_qY;
-    udpReceiver.receive(dataReceived_data, &loop_ub);
-    if (totalSampsReceived == 0ULL) {
+    unsigned long b_qY;
+    udpReceiver.receive(dataReceived_data);
+    if (totalSampsReceived == 0UL) {
       b_this.init();
       startTimeStamp = b_this.data.re / 1000.0 - 0.0054373333333333339;
       //  At this point the difference between tic and toc for the first packet
@@ -189,8 +195,8 @@ void airspy_channelize(const coder::array<int, 2U> &channelsUsed)
       //  tocElapsedAdjust for this purpose.
       tocElapsedSubtract = coder::toc() - 0.0054373333333333339;
     }
-    b_qY = totalSampsReceived + 2039ULL;
-    if (totalSampsReceived + 2039ULL < totalSampsReceived) {
+    b_qY = totalSampsReceived + 2039UL;
+    if (totalSampsReceived + 2039UL < totalSampsReceived) {
       b_qY = MAX_uint64_T;
     }
     totalSampsReceived = b_qY;
@@ -198,27 +204,45 @@ void airspy_channelize(const coder::array<int, 2U> &channelsUsed)
     //  Reset if a big time offset developes
     tocBasedElapseTime -= static_cast<double>(b_qY) * 2.6666666666666668E-6;
     if (std::abs(tocBasedElapseTime) > 0.1) {
-      printf("Resetting buffers to due to drift: Current diff b/t toc and samp "
-             "time: %f s \n",
-             tocBasedElapseTime);
-      fflush(stdout);
-      if (dataBufferFIFO.pBuffer.isInitialized == 2) {
-        rtErrorWithMessageID("reset", emlrtRTEI.fName, emlrtRTEI.lineNo);
+      //  fprintf('Resetting buffers to due to drift: Current diff b/t toc and
+      //  samp time: %f s \n', timeDiff); dataBufferFIFO.reset();
+      //  udpReceiver.clear();
+      //  totalSampsReceived = uint64(0);
+      //  sampsTransmitted   = uint32(0);
+      currNumMissingSamps = std::round(tocBasedElapseTime * 375000.0);
+      totalNumMissingSamps += currNumMissingSamps;
+      totalLostTime += tocBasedElapseTime;
+      if (currNumMissingSamps < 2.147483648E+9) {
+        if (currNumMissingSamps >= -2.147483648E+9) {
+          qY = static_cast<int>(currNumMissingSamps);
+        } else {
+          qY = MIN_int32_T;
+        }
+      } else if (currNumMissingSamps >= 2.147483648E+9) {
+        qY = MAX_int32_T;
+      } else {
+        qY = 0;
       }
-      if (dataBufferFIFO.pBuffer.isInitialized == 1) {
-        dataBufferFIFO.pBuffer.ReadPointer = 1;
-        dataBufferFIFO.pBuffer.WritePointer = 2;
-        dataBufferFIFO.pBuffer.CumulativeOverrun = 0;
-        dataBufferFIFO.pBuffer.CumulativeUnderrun = 0;
-        std::memset(&dataBufferFIFO.pBuffer.Cache[0], 0,
-                    204801U * sizeof(creal32_T));
+      if (totalNumMissingSamps < 2.147483648E+9) {
+        if (totalNumMissingSamps >= -2.147483648E+9) {
+          loop_ub = static_cast<int>(totalNumMissingSamps);
+        } else {
+          loop_ub = MIN_int32_T;
+        }
+      } else if (totalNumMissingSamps >= 2.147483648E+9) {
+        loop_ub = MAX_int32_T;
+      } else {
+        loop_ub = 0;
       }
-      udpReceiverClear(udpReceiver.udpReceiver);
-      totalSampsReceived = 0ULL;
-      sampsTransmitted = 0U;
+      std::printf(
+          "Missing samples detected in channelizer. Lost time: %f. Total lost "
+          "time: %f. Estimated missing samples: %d. Estimated total miss"
+          "ing samples: %d. \n",
+          tocBasedElapseTime, totalLostTime, qY, loop_ub);
+      std::fflush(stdout);
     }
     //  Collect samples in FIFO until we have enough to channelize
-    dataBufferFIFO.write(dataReceived_data, loop_ub);
+    dataBufferFIFO.write(dataReceived_data);
     if ((dataBufferFIFO.pBuffer.WritePointer >= 0) &&
         (dataBufferFIFO.pBuffer.ReadPointer <
          dataBufferFIFO.pBuffer.WritePointer - MAX_int32_T)) {
@@ -258,7 +282,6 @@ void airspy_channelize(const coder::array<int, 2U> &channelsUsed)
     }
     if (qY >= 102400) {
       creal32_T c_y;
-      double bufferTimeStamp;
       float b_y;
       float y;
       unsigned int b_x;
@@ -266,9 +289,10 @@ void airspy_channelize(const coder::array<int, 2U> &channelsUsed)
       //  We have enough samples to channelize
       dataBufferFIFO.read(varargin_1);
       channelizer.step(varargin_1, channelData);
-      bufferTimeStamp = startTimeStamp + static_cast<double>(sampsTransmitted) *
-                                             0.00026666666666666668;
-      tocBasedElapseTime = std::floor(bufferTimeStamp);
+      currNumMissingSamps =
+          startTimeStamp +
+          static_cast<double>(sampsTransmitted) * 0.00026666666666666668;
+      tocBasedElapseTime = std::floor(currNumMissingSamps);
       if (tocBasedElapseTime < 4.294967296E+9) {
         if (tocBasedElapseTime >= 0.0) {
           x = static_cast<unsigned int>(tocBasedElapseTime);
@@ -280,15 +304,15 @@ void airspy_channelize(const coder::array<int, 2U> &channelsUsed)
       } else {
         x = 0U;
       }
-      if (std::isnan(bufferTimeStamp) || std::isinf(bufferTimeStamp)) {
+      if (std::isnan(currNumMissingSamps) || std::isinf(currNumMissingSamps)) {
         tocBasedElapseTime = rtNaN;
-      } else if (bufferTimeStamp == 0.0) {
+      } else if (currNumMissingSamps == 0.0) {
         tocBasedElapseTime = 0.0;
       } else {
-        tocBasedElapseTime = std::fmod(bufferTimeStamp, 1.0);
+        tocBasedElapseTime = std::fmod(currNumMissingSamps, 1.0);
         if (tocBasedElapseTime == 0.0) {
           tocBasedElapseTime = 0.0;
-        } else if (bufferTimeStamp < 0.0) {
+        } else if (currNumMissingSamps < 0.0) {
           tocBasedElapseTime++;
         }
       }
@@ -314,8 +338,8 @@ void airspy_channelize(const coder::array<int, 2U> &channelsUsed)
         x = MAX_uint32_T;
       }
       sampsTransmitted = x;
-      printf("Channelized samples: transmitted %u\n", x);
-      fflush(stdout);
+      std::printf("Channelized samples: transmitted %u\n", x);
+      std::fflush(stdout);
     }
   }
 }

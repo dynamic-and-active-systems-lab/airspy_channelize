@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: rtGetInf.h
 //
-// MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 01-Apr-2023 15:42:43
+// MATLAB Coder version            : 23.2
+// C/C++ source code generated on  : 11-Dec-2023 13:33:03
 //
 
 #ifndef RTGETINF_H

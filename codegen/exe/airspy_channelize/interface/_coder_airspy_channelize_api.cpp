@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: _coder_airspy_channelize_api.cpp
 //
-// MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 01-Apr-2023 15:42:43
+// MATLAB Coder version            : 23.2
+// C/C++ source code generated on  : 11-Dec-2023 13:33:03
 //
 
 // Include Files
@@ -19,7 +19,7 @@ emlrtCTX emlrtRootTLSGlobal{nullptr};
 emlrtContext emlrtContextGlobal{
     true,                                                 // bFirstTime
     false,                                                // bInitialized
-    131626U,                                              // fVersionInfo
+    131643U,                                              // fVersionInfo
     nullptr,                                              // fErrorFunction
     "airspy_channelize",                                  // fFunctionName
     nullptr,                                              // fRTCallStack
@@ -29,35 +29,35 @@ emlrtContext emlrtContextGlobal{
 };
 
 // Function Declarations
-static void b_emlrt_marshallIn(const emlrtStack *sp, const mxArray *src,
+static void b_emlrt_marshallIn(const emlrtStack &sp, const mxArray *src,
                                const emlrtMsgIdentifier *msgId,
                                coder::array<int32_T, 2U> &ret);
 
-static void emlrt_marshallIn(const emlrtStack *sp, const mxArray *channelsUsed,
+static void emlrt_marshallIn(const emlrtStack &sp, const mxArray *b_nullptr,
                              const char_T *identifier,
                              coder::array<int32_T, 2U> &y);
 
-static void emlrt_marshallIn(const emlrtStack *sp, const mxArray *u,
+static void emlrt_marshallIn(const emlrtStack &sp, const mxArray *u,
                              const emlrtMsgIdentifier *parentId,
                              coder::array<int32_T, 2U> &y);
 
 // Function Definitions
 //
-// Arguments    : const emlrtStack *sp
+// Arguments    : const emlrtStack &sp
 //                const mxArray *src
 //                const emlrtMsgIdentifier *msgId
 //                coder::array<int32_T, 2U> &ret
 // Return Type  : void
 //
-static void b_emlrt_marshallIn(const emlrtStack *sp, const mxArray *src,
+static void b_emlrt_marshallIn(const emlrtStack &sp, const mxArray *src,
                                const emlrtMsgIdentifier *msgId,
                                coder::array<int32_T, 2U> &ret)
 {
   static const int32_T dims[2]{1, -1};
   int32_T iv[2];
-  const boolean_T bv[2]{false, true};
-  emlrtCheckVsBuiltInR2012b((emlrtCTX)sp, msgId, src, (const char_T *)"int32",
-                            false, 2U, (void *)&dims[0], &bv[0], &iv[0]);
+  boolean_T bv[2]{false, true};
+  emlrtCheckVsBuiltInR2012b((emlrtConstCTX)&sp, msgId, src, "int32", false, 2U,
+                            (const void *)&dims[0], &bv[0], &iv[0]);
   ret.prealloc(iv[0] * iv[1]);
   ret.set_size(iv[0], iv[1]);
   ret.set(static_cast<int32_T *>(emlrtMxGetData(src)), ret.size(0),
@@ -66,13 +66,13 @@ static void b_emlrt_marshallIn(const emlrtStack *sp, const mxArray *src,
 }
 
 //
-// Arguments    : const emlrtStack *sp
-//                const mxArray *channelsUsed
+// Arguments    : const emlrtStack &sp
+//                const mxArray *b_nullptr
 //                const char_T *identifier
 //                coder::array<int32_T, 2U> &y
 // Return Type  : void
 //
-static void emlrt_marshallIn(const emlrtStack *sp, const mxArray *channelsUsed,
+static void emlrt_marshallIn(const emlrtStack &sp, const mxArray *b_nullptr,
                              const char_T *identifier,
                              coder::array<int32_T, 2U> &y)
 {
@@ -80,18 +80,18 @@ static void emlrt_marshallIn(const emlrtStack *sp, const mxArray *channelsUsed,
   thisId.fIdentifier = const_cast<const char_T *>(identifier);
   thisId.fParent = nullptr;
   thisId.bParentIsCell = false;
-  emlrt_marshallIn(sp, emlrtAlias(channelsUsed), &thisId, y);
-  emlrtDestroyArray(&channelsUsed);
+  emlrt_marshallIn(sp, emlrtAlias(b_nullptr), &thisId, y);
+  emlrtDestroyArray(&b_nullptr);
 }
 
 //
-// Arguments    : const emlrtStack *sp
+// Arguments    : const emlrtStack &sp
 //                const mxArray *u
 //                const emlrtMsgIdentifier *parentId
 //                coder::array<int32_T, 2U> &y
 // Return Type  : void
 //
-static void emlrt_marshallIn(const emlrtStack *sp, const mxArray *u,
+static void emlrt_marshallIn(const emlrtStack &sp, const mxArray *u,
                              const emlrtMsgIdentifier *parentId,
                              coder::array<int32_T, 2U> &y)
 {
@@ -115,7 +115,7 @@ void airspy_channelize_api(const mxArray *prhs)
   emlrtHeapReferenceStackEnterFcnR2012b(&st);
   // Marshall function inputs
   channelsUsed.no_free();
-  emlrt_marshallIn(&st, emlrtAlias(prhs), "channelsUsed", channelsUsed);
+  emlrt_marshallIn(st, emlrtAlias(prhs), "channelsUsed", channelsUsed);
   // Invoke the target function
   airspy_channelize(channelsUsed);
   emlrtHeapReferenceStackLeaveFcnR2012b(&st);
@@ -135,7 +135,6 @@ void airspy_channelize_atexit()
   mexFunctionCreateRootTLS();
   st.tls = emlrtRootTLSGlobal;
   emlrtEnterRtStackR2012b(&st);
-  emlrtLeaveRtStackR2012b(&st);
   emlrtDestroyRootTLS(&emlrtRootTLSGlobal);
   airspy_channelize_xil_terminate();
   airspy_channelize_xil_shutdown();
@@ -166,13 +165,6 @@ void airspy_channelize_initialize()
 //
 void airspy_channelize_terminate()
 {
-  emlrtStack st{
-      nullptr, // site
-      nullptr, // tls
-      nullptr  // prev
-  };
-  st.tls = emlrtRootTLSGlobal;
-  emlrtLeaveRtStackR2012b(&st);
   emlrtDestroyRootTLS(&emlrtRootTLSGlobal);
 }
 

@@ -126,6 +126,12 @@ udpReceiver.clear();
 
 fprintf("Waiting for new udp data\n");
 
+%% KEEP TRACK OF ESTIMATE OF LOST SAMPLES
+currNumMissingSamps  = 0;
+totalNumMissingSamps = 0;
+totalLostTime        = 0;
+
+
 tic;
 while true
     dataReceived = udpReceiver.receive();
@@ -150,11 +156,17 @@ while true
         % Reset if a big time offset developes
         timeDiff = tocBasedElapseTime - sampBasedElapsedTime;
         if abs(timeDiff) > 0.1
-            fprintf('Resetting buffers to due to drift: Current diff b/t toc and samp time: %f s \n', timeDiff);
-            dataBufferFIFO.reset();
-            udpReceiver.clear();
-            totalSampsReceived = uint64(0);
-            sampsTransmitted   = uint32(0);
+            % fprintf('Resetting buffers to due to drift: Current diff b/t toc and samp time: %f s \n', timeDiff);
+            % dataBufferFIFO.reset();
+            % udpReceiver.clear();
+            % totalSampsReceived = uint64(0);
+            % sampsTransmitted   = uint32(0);
+            
+            currNumMissingSamps  = round( timeDiff * incomingSampleRate );
+            totalNumMissingSamps = currNumMissingSamps + totalNumMissingSamps;
+            totalLostTime  = totalLostTime + timeDiff;
+            fprintf('Missing samples detected in channelizer. Lost time: %f. Total lost time: %f. Estimated missing samples: %d. Estimated total missing samples: %d. \n', timeDiff, totalLostTime, int32(currNumMissingSamps), int32(totalNumMissingSamps));
+
         end
 
         % Collect samples in FIFO until we have enough to channelize

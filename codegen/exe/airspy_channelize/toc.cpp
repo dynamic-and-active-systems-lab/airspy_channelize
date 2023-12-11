@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: toc.cpp
 //
-// MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 01-Apr-2023 15:42:43
+// MATLAB Coder version            : 23.2
+// C/C++ source code generated on  : 11-Dec-2023 13:33:03
 //
 
 // Include Files
@@ -30,19 +30,19 @@ double toc()
   double tstart_tv_nsec;
   double tstart_tv_sec;
   int status;
-  internal::time::impl::timeKeeper(&tstart_tv_sec, &tstart_tv_nsec);
+  tstart_tv_sec = internal::b_time::impl::timeKeeper(tstart_tv_nsec);
   if (!freq_not_empty) {
     freq_not_empty = true;
     status = coderInitTimeFunctions(&freq);
     if (status != 0) {
-      rtErrorWithMessageID(std::string(&cv[0], 22), status, l_emlrtRTEI.fName,
-                           l_emlrtRTEI.lineNo);
+      rtErrorWithMessageID(std::string(&cv[0], 22), status, e_emlrtRTEI.fName,
+                           e_emlrtRTEI.lineNo);
     }
   }
   status = coderTimeClockGettimeMonotonic(&b_timespec, freq);
   if (status != 0) {
-    rtErrorWithMessageID(std::string(&cv1[0], 30), status, l_emlrtRTEI.fName,
-                         l_emlrtRTEI.lineNo);
+    rtErrorWithMessageID(std::string(&cv1[0], 30), status, e_emlrtRTEI.fName,
+                         e_emlrtRTEI.lineNo);
   }
   return (b_timespec.tv_sec - tstart_tv_sec) +
          (b_timespec.tv_nsec - tstart_tv_nsec) / 1.0E+9;

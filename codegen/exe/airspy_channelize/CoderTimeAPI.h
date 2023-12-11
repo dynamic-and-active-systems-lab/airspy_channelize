@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: CoderTimeAPI.h
 //
-// MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 01-Apr-2023 15:42:43
+// MATLAB Coder version            : 23.2
+// C/C++ source code generated on  : 11-Dec-2023 13:33:03
 //
 
 #ifndef CODERTIMEAPI_H
@@ -13,11 +13,15 @@
 
 // Include Files
 #include "rtwtypes.h"
+#include "coder_posix_time.h"
 #include <cstddef>
 #include <cstdlib>
 
-// Function Declarations
-void freq_not_empty_init();
+// Type Definitions
+class CoderTimeAPI {
+public:
+  static void callCoderClockGettime_init();
+};
 
 #endif
 //

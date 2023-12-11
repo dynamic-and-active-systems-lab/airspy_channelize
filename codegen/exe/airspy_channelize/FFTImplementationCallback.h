@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: FFTImplementationCallback.h
 //
-// MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 01-Apr-2023 15:42:43
+// MATLAB Coder version            : 23.2
+// C/C++ source code generated on  : 11-Dec-2023 13:33:03
 //
 
 #ifndef FFTIMPLEMENTATIONCALLBACK_H
@@ -23,8 +23,8 @@ namespace internal {
 namespace fft {
 class FFTImplementationCallback {
 public:
-  static void dobluesteinfft(const ::coder::array<creal32_T, 2U> &x,
-                             ::coder::array<creal32_T, 2U> &y);
+  static void dobluesteinfft(const array<creal32_T, 2U> &x,
+                             array<creal32_T, 2U> &y);
 };
 
 } // namespace fft

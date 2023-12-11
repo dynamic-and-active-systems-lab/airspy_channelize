@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: AsyncBuffercgHelper.h
 //
-// MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 01-Apr-2023 15:42:43
+// MATLAB Coder version            : 23.2
+// C/C++ source code generated on  : 11-Dec-2023 13:33:03
 //
 
 #ifndef ASYNCBUFFERCGHELPER_H
@@ -24,11 +24,10 @@ namespace dsp {
 namespace internal {
 class AsyncBuffercgHelper {
 public:
-  static void ReadSamplesFromBuffer(const AsyncBuffercgHelper *obj,
-                                    int numRowsCast,
-                                    ::coder::array<creal32_T, 1U> &out,
-                                    int *underrun, int *c);
-  int stepImpl(const creal32_T in_data[], int in_size);
+  static int ReadSamplesFromBuffer(const AsyncBuffercgHelper &obj,
+                                   int numRowsCast, array<creal32_T, 1U> &out,
+                                   int &c);
+  int stepImpl(const creal32_T in_data[]);
   void matlabCodegenDestructor();
   void release();
   void releaseWrapper();

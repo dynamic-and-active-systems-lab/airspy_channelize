@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: _coder_airspy_channelize_api.h
 //
-// MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 01-Apr-2023 15:42:43
+// MATLAB Coder version            : 23.2
+// C/C++ source code generated on  : 11-Dec-2023 13:33:03
 //
 
 #ifndef _CODER_AIRSPY_CHANNELIZE_API_H
@@ -14,6 +14,7 @@
 // Include Files
 #include "coder_array_mex.h"
 #include "emlrt.h"
+#include "mex.h"
 #include "tmwtypes.h"
 #include <algorithm>
 #include <cstring>

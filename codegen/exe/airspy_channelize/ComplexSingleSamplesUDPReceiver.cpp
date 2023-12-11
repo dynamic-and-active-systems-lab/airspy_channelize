@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: ComplexSingleSamplesUDPReceiver.cpp
 //
-// MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 01-Apr-2023 15:42:43
+// MATLAB Coder version            : 23.2
+// C/C++ source code generated on  : 11-Dec-2023 13:33:03
 //
 
 // Include Files
@@ -18,18 +18,18 @@
 // Function Definitions
 //
 // Arguments    : creal32_T complexData_data[]
-//                int *complexData_size
-// Return Type  : void
+// Return Type  : int
 //
-void ComplexSingleSamplesUDPReceiver::receive(creal32_T complexData_data[],
-                                              int *complexData_size) const
+int ComplexSingleSamplesUDPReceiver::receive(creal32_T complexData_data[]) const
 {
   creal32_T complexBuffer_data[2039];
+  int complexData_size;
   std::memset(&complexBuffer_data[0], 0, 2039U * sizeof(creal32_T));
   udpReceiverReadComplex(udpReceiver, &complexBuffer_data[0], 2039.0);
-  *complexData_size = 2039;
+  complexData_size = 2039;
   std::copy(&complexBuffer_data[0], &complexBuffer_data[2039],
             &complexData_data[0]);
+  return complexData_size;
 }
 
 //

@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: airspy_channelize_rtwutil.cpp
 //
-// MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 01-Apr-2023 15:42:43
+// MATLAB Coder version            : 23.2
+// C/C++ source code generated on  : 11-Dec-2023 13:33:03
 //
 
 // Include Files
@@ -53,8 +53,8 @@ void b_rtErrorWithMessageID(const char *aFcnName, int aLineNum)
 {
   std::string errMsg;
   std::stringstream outStream;
-  outStream << "The number of channels (number of columns) of the input signal "
-               "cannot change.";
+  outStream << "Changing the number of channels (number of columns) of the "
+               "input signal is not supported.";
   outStream << "\n";
   ((((outStream << "Error in ") << aFcnName) << " (line ") << aLineNum) << ")";
   if (omp_in_parallel()) {
@@ -88,83 +88,14 @@ void c_rtErrorWithMessageID(const char *aFcnName, int aLineNum)
 }
 
 //
-// Arguments    : const char *aFcnName
-//                int aLineNum
-// Return Type  : void
-//
-void f_rtErrorWithMessageID(const char *aFcnName, int aLineNum)
-{
-  std::string errMsg;
-  std::stringstream outStream;
-  outStream
-      << "To RESHAPE the number of elements must not change, and if the input "
-         "is empty, the maximum dimension length cannot be increased u"
-         "nless the output size is fixed.";
-  outStream << "\n";
-  ((((outStream << "Error in ") << aFcnName) << " (line ") << aLineNum) << ")";
-  if (omp_in_parallel()) {
-    errMsg = outStream.str();
-    std::fprintf(stderr, "%s", errMsg.c_str());
-    std::abort();
-  } else {
-    throw std::runtime_error(outStream.str());
-  }
-}
-
-//
-// Arguments    : const char *aFcnName
-//                int aLineNum
-// Return Type  : void
-//
-void g_rtErrorWithMessageID(const char *aFcnName, int aLineNum)
-{
-  std::string errMsg;
-  std::stringstream outStream;
-  outStream << "To RESHAPE the number of elements must not change.";
-  outStream << "\n";
-  ((((outStream << "Error in ") << aFcnName) << " (line ") << aLineNum) << ")";
-  if (omp_in_parallel()) {
-    errMsg = outStream.str();
-    std::fprintf(stderr, "%s", errMsg.c_str());
-    std::abort();
-  } else {
-    throw std::runtime_error(outStream.str());
-  }
-}
-
-//
-// Arguments    : const char *aFcnName
-//                int aLineNum
-// Return Type  : void
-//
-void h_rtErrorWithMessageID(const char *aFcnName, int aLineNum)
-{
-  std::string errMsg;
-  std::stringstream outStream;
-  outStream
-      << "Number of elements must not change. Use [] as one of the size inputs "
-         "to automatically calculate the appropriate size for that di"
-         "mension.";
-  outStream << "\n";
-  ((((outStream << "Error in ") << aFcnName) << " (line ") << aLineNum) << ")";
-  if (omp_in_parallel()) {
-    errMsg = outStream.str();
-    std::fprintf(stderr, "%s", errMsg.c_str());
-    std::abort();
-  } else {
-    throw std::runtime_error(outStream.str());
-  }
-}
-
-//
 // Arguments    : int aIndexValue
 //                int aLoBound
 //                int aHiBound
-//                const rtBoundsCheckInfo *aInfo
+//                const rtBoundsCheckInfo &aInfo
 // Return Type  : void
 //
 void rtDynamicBoundsError(int aIndexValue, int aLoBound, int aHiBound,
-                          const rtBoundsCheckInfo *aInfo)
+                          const rtBoundsCheckInfo &aInfo)
 {
   std::string b_errMsg;
   std::string errMsg;
@@ -175,7 +106,7 @@ void rtDynamicBoundsError(int aIndexValue, int aLoBound, int aHiBound,
     aLoBound = 1;
     aHiBound++;
   }
-  if (rtIsNullOrEmptyString(aInfo->aName)) {
+  if (rtIsNullOrEmptyString(aInfo.aName)) {
     ((((((b_outStream << "Index exceeds array dimensions. Index value ")
          << aIndexValue)
         << " exceeds valid range [")
@@ -184,8 +115,8 @@ void rtDynamicBoundsError(int aIndexValue, int aLoBound, int aHiBound,
      << aHiBound)
         << "].";
     b_outStream << "\n";
-    ((((b_outStream << "Error in ") << aInfo->fName) << " (line ")
-     << aInfo->lineNo)
+    ((((b_outStream << "Error in ") << aInfo.fName) << " (line ")
+     << aInfo.lineNo)
         << ")";
     if (omp_in_parallel()) {
       b_errMsg = b_outStream.str();
@@ -202,11 +133,10 @@ void rtDynamicBoundsError(int aIndexValue, int aLoBound, int aHiBound,
         << "-")
        << aHiBound)
       << "] for array \'")
-     << aInfo->aName)
+     << aInfo.aName)
         << "\'.";
     outStream << "\n";
-    ((((outStream << "Error in ") << aInfo->fName) << " (line ")
-     << aInfo->lineNo)
+    ((((outStream << "Error in ") << aInfo.fName) << " (line ") << aInfo.lineNo)
         << ")";
     if (omp_in_parallel()) {
       errMsg = outStream.str();
@@ -215,36 +145,6 @@ void rtDynamicBoundsError(int aIndexValue, int aLoBound, int aHiBound,
     } else {
       throw std::runtime_error(outStream.str());
     }
-  }
-}
-
-//
-// Arguments    : const std::string r
-//                const std::string r1
-//                const char *r2
-//                const char *aFcnName
-//                int aLineNum
-// Return Type  : void
-//
-void rtErrorWithMessageID(const std::string r, const std::string r1,
-                          const char *r2, const char *aFcnName, int aLineNum)
-{
-  std::string errMsg;
-  std::stringstream outStream;
-  ((((((outStream << "Validation size mismatch: input size ") << r)
-      << " ~= allowed size ")
-     << r1)
-    << " for dimension ")
-   << r2)
-      << ".";
-  outStream << "\n";
-  ((((outStream << "Error in ") << aFcnName) << " (line ") << aLineNum) << ")";
-  if (omp_in_parallel()) {
-    errMsg = outStream.str();
-    std::fprintf(stderr, "%s", errMsg.c_str());
-    std::abort();
-  } else {
-    throw std::runtime_error(outStream.str());
   }
 }
 
@@ -344,10 +244,10 @@ boolean_T rtIsNullOrEmptyString(const char *aString)
 
 //
 // Arguments    : const double aPositive
-//                const rtDoubleCheckInfo *aInfo
+//                const rtDoubleCheckInfo &aInfo
 // Return Type  : void
 //
-void rtNonNegativeError(const double aPositive, const rtDoubleCheckInfo *aInfo)
+void rtNonNegativeError(const double aPositive, const rtDoubleCheckInfo &aInfo)
 {
   std::string errMsg;
   std::stringstream outStream;
@@ -355,7 +255,7 @@ void rtNonNegativeError(const double aPositive, const rtDoubleCheckInfo *aInfo)
       << " is not greater than or equal to zero.\nExiting to prevent memory "
          "corruption.";
   outStream << "\n";
-  ((((outStream << "Error in ") << aInfo->fName) << " (line ") << aInfo->lineNo)
+  ((((outStream << "Error in ") << aInfo.fName) << " (line ") << aInfo.lineNo)
       << ")";
   if (omp_in_parallel()) {
     errMsg = outStream.str();
@@ -368,12 +268,12 @@ void rtNonNegativeError(const double aPositive, const rtDoubleCheckInfo *aInfo)
 
 //
 // Arguments    : const int *aDims1
-//                const int *aDims2
-//                const rtEqualityCheckInfo *aInfo
+//                const int &aDims2
+//                const rtEqualityCheckInfo &aInfo
 // Return Type  : void
 //
-void rtSubAssignSizeCheck(const int *aDims1, const int *aDims2,
-                          const rtEqualityCheckInfo *aInfo)
+void rtSubAssignSizeCheck(const int *aDims1, const int &aDims2,
+                          const rtEqualityCheckInfo &aInfo)
 {
   std::string errMsg;
   std::stringstream outStream;
@@ -385,25 +285,25 @@ void rtSubAssignSizeCheck(const int *aDims1, const int *aDims2,
     while ((i < 1) && (aDims1[i] == 1)) {
       i = 1;
     }
-    while ((j < 1) && (aDims2[j] == 1)) {
+    while ((j < 1) && ((&aDims2)[j] == 1)) {
       j = 1;
     }
     if (((i < 1) || (j < 1)) &&
         ((i == 1) ||
-         ((j == 1) || ((aDims1[i] != -1) &&
-                       ((aDims2[j] != -1) && (aDims1[i] != aDims2[j])))))) {
+         ((j == 1) || ((aDims1[i] != -1) && (((&aDims2)[j] != -1) &&
+                                             (aDims1[i] != (&aDims2)[j])))))) {
       std::string dims1Str;
       std::string dims2Str;
       dims1Str = rtGenSizeString(aDims1);
-      dims2Str = rtGenSizeString(aDims2);
+      dims2Str = rtGenSizeString(&aDims2);
       ((((outStream << "Subscripted assignment dimension mismatch: ")
          << dims1Str)
         << " ~= ")
        << dims2Str)
           << ".";
       outStream << "\n";
-      ((((outStream << "Error in ") << aInfo->fName) << " (line ")
-       << aInfo->lineNo)
+      ((((outStream << "Error in ") << aInfo.fName) << " (line ")
+       << aInfo.lineNo)
           << ")";
       if (omp_in_parallel()) {
         errMsg = outStream.str();

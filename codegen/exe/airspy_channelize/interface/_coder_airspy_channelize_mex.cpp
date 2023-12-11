@@ -4,8 +4,8 @@
 // government, commercial, or other organizational use.
 // File: _coder_airspy_channelize_mex.cpp
 //
-// MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 01-Apr-2023 15:42:43
+// MATLAB Coder version            : 23.2
+// C/C++ source code generated on  : 11-Dec-2023 13:33:03
 //
 
 // Include Files
@@ -66,7 +66,7 @@ void mexFunction(int32_T nlhs, mxArray *[], int32_T nrhs, const mxArray *prhs[])
 emlrtCTX mexFunctionCreateRootTLS()
 {
   emlrtCreateRootTLSR2022a(&emlrtRootTLSGlobal, &emlrtContextGlobal, nullptr, 1,
-                           nullptr, (const char_T *)"windows-1252", true);
+                           nullptr, "UTF-8", true);
   return emlrtRootTLSGlobal;
 }
 

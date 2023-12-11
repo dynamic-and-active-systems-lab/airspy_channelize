@@ -4,21 +4,22 @@
 // government, commercial, or other organizational use.
 // File: CoderTimeAPI.cpp
 //
-// MATLAB Coder version            : 5.4
-// C/C++ source code generated on  : 01-Apr-2023 15:42:43
+// MATLAB Coder version            : 23.2
+// C/C++ source code generated on  : 11-Dec-2023 13:33:03
 //
 
 // Include Files
 #include "CoderTimeAPI.h"
 #include "airspy_channelize_data.h"
 #include "rt_nonfinite.h"
+#include "coder_posix_time.h"
 
 // Function Definitions
 //
 // Arguments    : void
 // Return Type  : void
 //
-void freq_not_empty_init()
+void CoderTimeAPI::callCoderClockGettime_init()
 {
   freq_not_empty = false;
 }
