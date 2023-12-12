@@ -131,6 +131,10 @@ currNumMissingSamps  = 0;
 totalNumMissingSamps = 0;
 totalLostTime        = 0;
 
+initFlag = true;
+dataLossFlag = false;
+
+timeDurOfPacket = 0;
 
 tic;
 while true
@@ -139,13 +143,21 @@ while true
     if ~isempty(dataReceived)
         sampsReceived = uint64(numel(dataReceived));
 
-        if totalSampsReceived == 0
+        %if totalSampsReceived == 0
+        if initFlag
+            initFlag = false;
             timeDurOfPacket     = double(sampsReceived) * (1 / incomingSampleRate);
-            startTimeStamp      = posixtime(datetime('now')) - timeDurOfPacket;
+            %timeOfDataInBuffer  = dataBufferFIFO.NumUnreadSamples * (1 / incomingSampleRate);
+            startTimeStamp      = posixtime(datetime('now')) - timeDurOfPacket;% - timeOfDataInBuffer;
             % At this point the difference between tic and toc for the first packet is arbitrary.
             % Since we may have been sitting waiting for the first packet to come in.
             % Because of this we need to be able to subtract out this waiting time from our elapsed
             % time calcuations. We use the tocElapsedAdjust for this purpose.
+            tocElapsedSubtract  = toc - timeDurOfPacket;
+        end
+
+        if dataLossFlag
+
             tocElapsedSubtract  = toc - timeDurOfPacket;
         end
 
@@ -162,6 +174,9 @@ while true
             % totalSampsReceived = uint64(0);
             % sampsTransmitted   = uint32(0);
             
+            totalSampsReceived = uint64(0);
+            dataLossFlag = true;
+
             currNumMissingSamps  = round( timeDiff * incomingSampleRate );
             totalNumMissingSamps = currNumMissingSamps + totalNumMissingSamps;
             totalLostTime  = totalLostTime + timeDiff;

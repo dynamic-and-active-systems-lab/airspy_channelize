@@ -5,7 +5,7 @@
 // File: airspy_channelize.cpp
 //
 // MATLAB Coder version            : 23.2
-// C/C++ source code generated on  : 11-Dec-2023 13:33:03
+// C/C++ source code generated on  : 12-Dec-2023 08:39:26
 //
 
 // Include Files
@@ -130,6 +130,7 @@ void airspy_channelize(const coder::array<int, 2U> &channelsUsed)
   coder::array<int, 2U> b_channelsUsed;
   creal32_T dataReceived_data[2039];
   double startTimeStamp;
+  double timeDurOfPacket;
   double tocElapsedSubtract;
   double totalLostTime;
   double totalNumMissingSamps;
@@ -137,6 +138,8 @@ void airspy_channelize(const coder::array<int, 2U> &channelsUsed)
   int loop_ub;
   int qY;
   unsigned int sampsTransmitted;
+  boolean_T dataLossFlag;
+  boolean_T initFlag;
   if (!isInitialized_airspy_channelize) {
     airspy_channelize_initialize();
   }
@@ -179,21 +182,33 @@ void airspy_channelize(const coder::array<int, 2U> &channelsUsed)
   //  KEEP TRACK OF ESTIMATE OF LOST SAMPLES
   totalNumMissingSamps = 0.0;
   totalLostTime = 0.0;
+  initFlag = true;
+  dataLossFlag = false;
+  timeDurOfPacket = 0.0;
   coder::tic();
   while (1) {
     double currNumMissingSamps;
     double tocBasedElapseTime;
     unsigned long b_qY;
     udpReceiver.receive(dataReceived_data);
-    if (totalSampsReceived == 0UL) {
+    // if totalSampsReceived == 0
+    if (initFlag) {
+      initFlag = false;
+      timeDurOfPacket = 0.0054373333333333339;
+      // timeOfDataInBuffer  = dataBufferFIFO.NumUnreadSamples * (1 /
+      // incomingSampleRate);
       b_this.init();
       startTimeStamp = b_this.data.re / 1000.0 - 0.0054373333333333339;
+      //  - timeOfDataInBuffer;
       //  At this point the difference between tic and toc for the first packet
       //  is arbitrary. Since we may have been sitting waiting for the first
       //  packet to come in. Because of this we need to be able to subtract out
       //  this waiting time from our elapsed time calcuations. We use the
       //  tocElapsedAdjust for this purpose.
       tocElapsedSubtract = coder::toc() - 0.0054373333333333339;
+    }
+    if (dataLossFlag) {
+      tocElapsedSubtract = coder::toc() - timeDurOfPacket;
     }
     b_qY = totalSampsReceived + 2039UL;
     if (totalSampsReceived + 2039UL < totalSampsReceived) {
@@ -209,6 +224,8 @@ void airspy_channelize(const coder::array<int, 2U> &channelsUsed)
       //  udpReceiver.clear();
       //  totalSampsReceived = uint64(0);
       //  sampsTransmitted   = uint32(0);
+      totalSampsReceived = 0UL;
+      dataLossFlag = true;
       currNumMissingSamps = std::round(tocBasedElapseTime * 375000.0);
       totalNumMissingSamps += currNumMissingSamps;
       totalLostTime += tocBasedElapseTime;
